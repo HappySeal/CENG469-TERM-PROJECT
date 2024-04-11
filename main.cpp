@@ -41,8 +41,10 @@ int main(){
 
     glewInit();
 
+    // Shader
     Shader shader("./resources/Shaders/vert.glsl", "./resources/Shaders/frag.glsl");
 
+    // Create Vertex Array Object, Vertex Buffer Object and Element Buffer Object
     VAO VAO1;
     VAO1.Bind();
 

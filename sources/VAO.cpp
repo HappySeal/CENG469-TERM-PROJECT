@@ -12,6 +12,7 @@ void VAO::LinkVBO(VBO& VBO, GLuint layout){
     Bind();
     VBO.Bind();
 
+    // We need to specify the layout of the VBO
     glVertexAttribPointer(layout, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
     glEnableVertexAttribArray(layout);
 

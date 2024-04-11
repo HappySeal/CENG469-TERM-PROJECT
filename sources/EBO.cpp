@@ -6,6 +6,7 @@
 
 EBO::EBO(GLuint* indices, GLsizeiptr size){
     glGenBuffers(1, &ID);
+    // Bind buffer as element array buffer because we will store indices in it
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indices, GL_STATIC_DRAW);
 }
