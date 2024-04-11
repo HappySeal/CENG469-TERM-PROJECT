@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "/Users/caferselli/Library/CloudStorage/GoogleDrive-caferselli19@gmail.com/My Drive/METU/2023-2024/CENG469/sampleGL",
+      "program": "/Users/caferselli/Library/CloudStorage/GoogleDrive-caferselli19@gmail.com/My Drive/METU/2023-2024/CENG469/sampleGL/build/Debug/outDebug"
+    }
+  ]
+}
