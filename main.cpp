@@ -9,6 +9,7 @@
 #include "headers/VBO.h"
 #include "headers/EBO.h"
 #include "headers/VAO.h"
+#include "headers/Camera.h"
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -67,10 +68,12 @@ int main(){
     VBO1.Unbind();
     EBO1.Unbind();
 
-    GLuint uniID = glGetUniformLocation(shader.ID, "scale");
+
 
     // Enable depth testing
     glEnable(GL_DEPTH_TEST);
+
+    Camera camera = Camera(WIDTH, HEIGHT, glm::vec3(0.0f, 0.0f, 3.0f));
 
     while (!glfwWindowShouldClose(window)){
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -80,30 +83,11 @@ int main(){
 
 
         shader.Activate();
-        glUniform1f(uniID, 0.5f);
-
         VAO1.Bind();
 
         // Draw the triangle
-        glm::mat4 model = glm::mat4(1.0f);
-        glm::mat4 view = glm::mat4(1.0f);
-        glm::mat4 projection = glm::mat4(1.0f);
-
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-        projection = glm::perspective(glm::radians(45.0f), (float)WIDTH/(float)HEIGHT, 0.1f, 100.0f);
-
-        int viewLoc = glGetUniformLocation(shader.ID, "view");
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-
-        int projLoc = glGetUniformLocation(shader.ID, "projection");
-        glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-        int modelLoc = glGetUniformLocation(shader.ID, "model");
-        model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
-        model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0f));
-
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
+        camera.Inputs(window);
+        camera.Matrix(45.0f, 0.1f, 100.0f, shader, "camMatrix");
 
         glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(int), GL_UNSIGNED_INT, 0);
 
