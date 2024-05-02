@@ -18,12 +18,12 @@ int main(){
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Notating we are using OpenGL Core Profile
 
     GLfloat vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-        0.0f, -0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        0.25f,  0.0f, 0.0f,
-        0.0f,  0.5f, 0.0f,
-        -0.25f,  0.0f, 0.0f
+        -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f,
+        0.0f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f,
+        0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f,
+        0.25f,  0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+        0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
+        -0.25f,  0.0f, 0.0f , 0.0f, 0.0f, 1.0f
 
     };
 
@@ -49,23 +49,21 @@ int main(){
 
     // Create Vertex Array Object, Vertex Buffer Object and Element Buffer Object
     VAO VAO1;
-    VAO VAO2;
 
     VAO1.Bind();
 
     VBO VBO1(vertices, sizeof(vertices));
     EBO EBO1(indices, sizeof(indices));
 
-    VAO1.LinkVBO(VBO1, 0);
+    VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(GLfloat), (void*)0);
+    VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
     VAO1.Unbind();
-
-    VAO2.Bind();
-
-    VAO2.LinkVBO(VBO1, 0);
-    VAO2.Unbind();
 
     VBO1.Unbind();
     EBO1.Unbind();
+
+    GLuint uniID = glGetUniformLocation(shader.ID, "scale");
+
 
     while (!glfwWindowShouldClose(window)){
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -73,6 +71,7 @@ int main(){
 
 
         shader.Activate();
+        glUniform1f(uniID, 0.5f);
 
         VAO1.Bind();
 
@@ -81,16 +80,14 @@ int main(){
         glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
         glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
 
-        VAO2.Bind();
-
-        //Translate our triangle
-        //model = glm::translate(model, glm::vec3(0.5f, 0.0f, 0.0f));
-        model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-
-        unsigned int modelLoc = glGetUniformLocation(shader.ID, "model");
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-        glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
+//        //Translate our triangle
+//        //model = glm::translate(model, glm::vec3(0.5f, 0.0f, 0.0f));
+//        model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+//
+//        unsigned int modelLoc = glGetUniformLocation(shader.ID, "model");
+//        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+//
+//        glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
