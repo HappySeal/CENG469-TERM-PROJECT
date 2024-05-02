@@ -1,6 +1,9 @@
 #include <iostream>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "headers/shaderUtils.h"
 #include "headers/VBO.h"
@@ -46,6 +49,8 @@ int main(){
 
     // Create Vertex Array Object, Vertex Buffer Object and Element Buffer Object
     VAO VAO1;
+    VAO VAO2;
+
     VAO1.Bind();
 
     VBO VBO1(vertices, sizeof(vertices));
@@ -53,6 +58,12 @@ int main(){
 
     VAO1.LinkVBO(VBO1, 0);
     VAO1.Unbind();
+
+    VAO2.Bind();
+
+    VAO2.LinkVBO(VBO1, 0);
+    VAO2.Unbind();
+
     VBO1.Unbind();
     EBO1.Unbind();
 
@@ -65,9 +76,21 @@ int main(){
 
         VAO1.Bind();
 
+        glm::mat4 model = glm::mat4(1.0f);
+
+        glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
         glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
 
+        VAO2.Bind();
 
+        //Translate our triangle
+        //model = glm::translate(model, glm::vec3(0.5f, 0.0f, 0.0f));
+        model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+
+        unsigned int modelLoc = glGetUniformLocation(shader.ID, "model");
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+        glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
