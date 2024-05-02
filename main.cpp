@@ -10,6 +10,9 @@
 #include "headers/EBO.h"
 #include "headers/VAO.h"
 
+#define WIDTH 800
+#define HEIGHT 600
+
 int main(){
     glfwInit();
 
@@ -18,20 +21,22 @@ int main(){
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Notating we are using OpenGL Core Profile
 
     GLfloat vertices[] = {
-        -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f,
-        0.0f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f,
-        0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f,
-        0.25f,  0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
-        0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
-        -0.25f,  0.0f, 0.0f , 0.0f, 0.0f, 1.0f
-
+            -0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,
+            -0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,
+            0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,
+            0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,
+            0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,
     };
 
-    GLuint indices[] = {
-        0, 1, 5,
-        1, 2, 3,
-        3, 4, 5
-    };
+    GLuint indices[] =
+            {
+                    0, 1, 2,
+                    0, 2, 3,
+                    0, 1, 4,
+                    1, 2, 4,
+                    2, 3, 4,
+                    3, 0, 4
+            };
 
     GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
     if(window == NULL){
@@ -64,10 +69,14 @@ int main(){
 
     GLuint uniID = glGetUniformLocation(shader.ID, "scale");
 
+    // Enable depth testing
+    glEnable(GL_DEPTH_TEST);
 
     while (!glfwWindowShouldClose(window)){
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+
+        // Clear the color buffer and depth buffer
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
         shader.Activate();
@@ -75,10 +84,28 @@ int main(){
 
         VAO1.Bind();
 
+        // Draw the triangle
         glm::mat4 model = glm::mat4(1.0f);
+        glm::mat4 view = glm::mat4(1.0f);
+        glm::mat4 projection = glm::mat4(1.0f);
 
-        glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
+        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+        projection = glm::perspective(glm::radians(45.0f), (float)WIDTH/(float)HEIGHT, 0.1f, 100.0f);
+
+        int viewLoc = glGetUniformLocation(shader.ID, "view");
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
+        int projLoc = glGetUniformLocation(shader.ID, "projection");
+        glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+        int modelLoc = glGetUniformLocation(shader.ID, "model");
+        model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
+        model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0f));
+
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+
+        glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(int), GL_UNSIGNED_INT, 0);
 
 //        //Translate our triangle
 //        //model = glm::translate(model, glm::vec3(0.5f, 0.0f, 0.0f));
