@@ -23,6 +23,8 @@ public:
     glm::vec3 Orientation;
     glm::vec3 Up;
 
+    bool firstClick = true;
+
    int width;
    int height;
 
