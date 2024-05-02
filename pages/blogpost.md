@@ -44,5 +44,12 @@ When I started this project, I was very frustrated about HW1. Because I did litt
 
 Here there are some beginning screenshots of the project:
 
-![Beginning](./images/beginning.png)
+![Beginning](./images/image1.png)
+Here in the first picture I first implemented a simple pyramid
+
+![Beginning](./images/image2.png)
+
+Here I also implemented some really crude lighting system
+
+### Journeys end...
 
