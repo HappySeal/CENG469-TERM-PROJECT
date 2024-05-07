@@ -52,3 +52,11 @@ void Shader::Activate(){
 void Shader::Delete(){
     glDeleteProgram(ID);
 }
+
+void Shader::SetMat4(const std::string &name, const glm::mat4 *value) const {
+    glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(*value));
+}
+
+void Shader::SetVec4f(const std::string &name, const glm::vec4 *vec) const {
+    glUniform4f(glGetUniformLocation(ID, name.c_str()), vec->x, vec->y, vec->z, vec->w);
+}

@@ -22,6 +22,7 @@ public:
     glm::vec3 Position;
     glm::vec3 Orientation;
     glm::vec3 Up;
+    glm::mat4 cameraMatrix;
 
     bool firstClick = true;
 
@@ -32,7 +33,8 @@ public:
    float sensitivity = 100.0f;
 
     Camera(int _width, int _height, glm::vec3 pos = glm::vec3(0,0,0));
-    void Matrix(float FOVdeg, float nearPlane, float farPlane, Shader& shader, const char* uniform);
+    void updateMatrix(float FOVdeg, float nearPlane, float farPlane);
+    void Matrix(Shader& shader, const char* uniform);
     void Inputs(GLFWwindow* window);
 };
 

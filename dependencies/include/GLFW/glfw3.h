@@ -1065,7 +1065,7 @@ extern "C" {
  *  [attribute](@ref GLFW_CONTEXT_DEBUG_attrib).
  */
 #define GLFW_CONTEXT_DEBUG          0x00022007
-/*! @brief Legacy name for compatibility.
+/*! @brief Legacy modelPath for compatibility.
  *
  *  This is an alias for compatibility with earlier versions.
  */
@@ -1102,7 +1102,7 @@ extern "C" {
  *  [window hint](@ref GLFW_SCALE_FRAMEBUFFER_hint).
  */
 #define GLFW_SCALE_FRAMEBUFFER      0x0002200D
-/*! @brief Legacy name for compatibility.
+/*! @brief Legacy modelPath for compatibility.
  *
  *  This is an alias for the
  *  [GLFW_SCALE_FRAMEBUFFER](@ref GLFW_SCALE_FRAMEBUFFER_hint) window hint for
@@ -1270,17 +1270,17 @@ extern "C" {
  *  cursor themes.
  */
 #define GLFW_NOT_ALLOWED_CURSOR     0x0003600A
-/*! @brief Legacy name for compatibility.
+/*! @brief Legacy modelPath for compatibility.
  *
  *  This is an alias for compatibility with earlier versions.
  */
 #define GLFW_HRESIZE_CURSOR         GLFW_RESIZE_EW_CURSOR
-/*! @brief Legacy name for compatibility.
+/*! @brief Legacy modelPath for compatibility.
  *
  *  This is an alias for compatibility with earlier versions.
  */
 #define GLFW_VRESIZE_CURSOR         GLFW_RESIZE_NS_CURSOR
-/*! @brief Legacy name for compatibility.
+/*! @brief Legacy modelPath for compatibility.
  *
  *  This is an alias for compatibility with earlier versions.
  */
@@ -2328,9 +2328,9 @@ GLFWAPI void glfwInitAllocator(const GLFWallocator* allocator);
  *  using the static library version of the loader.
  *
  *  If set to `NULL`, GLFW will try to load the Vulkan loader dynamically by its standard
- *  name and get this function from there.  This is the default behavior.
+ *  modelPath and get this function from there.  This is the default behavior.
  *
- *  The standard name of the loader is `vulkan-1.dll` on Windows, `libvulkan.so.1` on
+ *  The standard modelPath of the loader is `vulkan-1.dll` on Windows, `libvulkan.so.1` on
  *  Linux and other Unix-like systems and `libvulkan.1.dylib` on macOS.  If your code is
  *  also loading it via these names then you probably don't need to use this function.
  *
@@ -2342,7 +2342,7 @@ GLFWAPI void glfwInitAllocator(const GLFWallocator* allocator);
  *
  *  @par Loader function signature
  *  @code
- *  PFN_vkVoidFunction vkGetInstanceProcAddr(VkInstance instance, const char* name)
+ *  PFN_vkVoidFunction vkGetInstanceProcAddr(VkInstance instance, const char* modelPath)
  *  @endcode
  *  For more information about this function, see the
  *  [Vulkan Registry](https://www.khronos.org/registry/vulkan/).
@@ -2726,14 +2726,14 @@ GLFWAPI void glfwGetMonitorPhysicalSize(GLFWmonitor* monitor, int* widthMM, int*
  */
 GLFWAPI void glfwGetMonitorContentScale(GLFWmonitor* monitor, float* xscale, float* yscale);
 
-/*! @brief Returns the name of the specified monitor.
+/*! @brief Returns the modelPath of the specified monitor.
  *
- *  This function returns a human-readable name, encoded as UTF-8, of the
- *  specified monitor.  The name typically reflects the make and model of the
+ *  This function returns a human-readable modelPath, encoded as UTF-8, of the
+ *  specified monitor.  The modelPath typically reflects the make and model of the
  *  monitor and is not guaranteed to be unique among the connected monitors.
  *
  *  @param[in] monitor The monitor to query.
- *  @return The UTF-8 encoded name of the monitor, or `NULL` if an
+ *  @return The UTF-8 encoded modelPath of the monitor, or `NULL` if an
  *  [error](@ref error_handling) occurred.
  *
  *  @errors Possible errors include @ref GLFW_NOT_INITIALIZED.
@@ -4766,9 +4766,9 @@ GLFWAPI void glfwSetInputMode(GLFWwindow* window, int mode, int value);
  */
 GLFWAPI int glfwRawMouseMotionSupported(void);
 
-/*! @brief Returns the layout-specific name of the specified printable key.
+/*! @brief Returns the layout-specific modelPath of the specified printable key.
  *
- *  This function returns the name of the specified printable key, encoded as
+ *  This function returns the modelPath of the specified printable key, encoded as
  *  UTF-8.  This is typically the character that key would produce without any
  *  modifier keys, intended for displaying key bindings to the user.  For dead
  *  keys, it is typically the diacritic it would add to a character.
@@ -4813,7 +4813,7 @@ GLFWAPI int glfwRawMouseMotionSupported(void);
  *
  *  @param[in] key The key to query, or `GLFW_KEY_UNKNOWN`.
  *  @param[in] scancode The scancode of the key to query.
- *  @return The UTF-8 encoded, layout-specific name of the key, or `NULL`.
+ *  @return The UTF-8 encoded, layout-specific modelPath of the key, or `NULL`.
  *
  *  @errors Possible errors include @ref GLFW_NOT_INITIALIZED, @ref
  *  GLFW_INVALID_VALUE, @ref GLFW_INVALID_ENUM and @ref GLFW_PLATFORM_ERROR.
@@ -5606,9 +5606,9 @@ GLFWAPI const unsigned char* glfwGetJoystickButtons(int jid, int* count);
  */
 GLFWAPI const unsigned char* glfwGetJoystickHats(int jid, int* count);
 
-/*! @brief Returns the name of the specified joystick.
+/*! @brief Returns the modelPath of the specified joystick.
  *
- *  This function returns the name, encoded as UTF-8, of the specified joystick.
+ *  This function returns the modelPath, encoded as UTF-8, of the specified joystick.
  *  The returned string is allocated and freed by GLFW.  You should not free it
  *  yourself.
  *
@@ -5617,7 +5617,7 @@ GLFWAPI const unsigned char* glfwGetJoystickHats(int jid, int* count);
  *  @ref glfwJoystickPresent.
  *
  *  @param[in] jid The [joystick](@ref joysticks) to query.
- *  @return The UTF-8 encoded name of the joystick, or `NULL` if the joystick
+ *  @return The UTF-8 encoded modelPath of the joystick, or `NULL` if the joystick
  *  is not present or an [error](@ref error_handling) occurred.
  *
  *  @errors Possible errors include @ref GLFW_NOT_INITIALIZED, @ref
@@ -5826,9 +5826,9 @@ GLFWAPI GLFWjoystickfun glfwSetJoystickCallback(GLFWjoystickfun callback);
  */
 GLFWAPI int glfwUpdateGamepadMappings(const char* string);
 
-/*! @brief Returns the human-readable gamepad name for the specified joystick.
+/*! @brief Returns the human-readable gamepad modelPath for the specified joystick.
  *
- *  This function returns the human-readable name of the gamepad from the
+ *  This function returns the human-readable modelPath of the gamepad from the
  *  gamepad mapping assigned to the specified joystick.
  *
  *  If the specified joystick is not present or does not have a gamepad mapping
@@ -5837,7 +5837,7 @@ GLFWAPI int glfwUpdateGamepadMappings(const char* string);
  *  whether it has a mapping.
  *
  *  @param[in] jid The [joystick](@ref joysticks) to query.
- *  @return The UTF-8 encoded name of the gamepad, or `NULL` if the
+ *  @return The UTF-8 encoded modelPath of the gamepad, or `NULL` if the
  *  joystick is not present, does not have a mapping or an
  *  [error](@ref error_handling) occurred.
  *
@@ -6228,7 +6228,7 @@ GLFWAPI void glfwSwapInterval(int interval);
  *  glfwGetRequiredInstanceExtensions, `vkEnumerateInstanceExtensionProperties`
  *  and `vkEnumerateDeviceExtensionProperties` instead.
  *
- *  @param[in] extension The ASCII encoded name of the extension.
+ *  @param[in] extension The ASCII encoded modelPath of the extension.
  *  @return `GLFW_TRUE` if the extension is available, or `GLFW_FALSE`
  *  otherwise.
  *
@@ -6261,7 +6261,7 @@ GLFWAPI int glfwExtensionSupported(const char* extension);
  *  see @ref glfwGetInstanceProcAddress, `vkGetInstanceProcAddr` and
  *  `vkGetDeviceProcAddr` instead.
  *
- *  @param[in] procname The ASCII encoded name of the function.
+ *  @param[in] procname The ASCII encoded modelPath of the function.
  *  @return The address of the function, or `NULL` if an
  *  [error](@ref error_handling) occurred.
  *
@@ -6382,7 +6382,7 @@ GLFWAPI const char** glfwGetRequiredInstanceExtensions(uint32_t* count);
  *
  *  @param[in] instance The Vulkan instance to query, or `NULL` to retrieve
  *  functions related to instance creation.
- *  @param[in] procname The ASCII encoded name of the function.
+ *  @param[in] procname The ASCII encoded modelPath of the function.
  *  @return The address of the function, or `NULL` if an
  *  [error](@ref error_handling) occurred.
  *
@@ -6483,7 +6483,7 @@ GLFWAPI int glfwGetPhysicalDevicePresentationSupport(VkInstance instance, VkPhys
  *  eliminate almost all occurrences of these errors.
  *
  *  @remark @macos GLFW prefers the `VK_EXT_metal_surface` extension, with the
- *  `VK_MVK_macos_surface` extension as a fallback.  The name of the selected
+ *  `VK_MVK_macos_surface` extension as a fallback.  The modelPath of the selected
  *  extension, if any, is included in the array returned by @ref
  *  glfwGetRequiredInstanceExtensions.
  *
@@ -6494,7 +6494,7 @@ GLFWAPI int glfwGetPhysicalDevicePresentationSupport(VkInstance instance, VkPhys
  *  with the `VK_KHR_xlib_surface` extension as a fallback.  You can make
  *  `VK_KHR_xlib_surface` the preferred extension by setting the
  *  [GLFW_X11_XCB_VULKAN_SURFACE](@ref GLFW_X11_XCB_VULKAN_SURFACE_hint) init
- *  hint.  The name of the selected extension, if any, is included in the array
+ *  hint.  The modelPath of the selected extension, if any, is included in the array
  *  returned by @ref glfwGetRequiredInstanceExtensions.
  *
  *  @thread_safety This function may be called from any thread.  For

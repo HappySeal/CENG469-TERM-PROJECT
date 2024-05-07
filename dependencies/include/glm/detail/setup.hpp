@@ -593,16 +593,16 @@
 
 #if (GLM_COMPILER & GLM_COMPILER_VC) || ((GLM_COMPILER & GLM_COMPILER_INTEL) && (GLM_PLATFORM & GLM_PLATFORM_WINDOWS))
 #	define GLM_DEPRECATED __declspec(deprecated)
-#	define GLM_ALIGNED_TYPEDEF(type, name, alignment) typedef __declspec(align(alignment)) type name
+#	define GLM_ALIGNED_TYPEDEF(type, modelPath, alignment) typedef __declspec(align(alignment)) type modelPath
 #elif GLM_COMPILER & (GLM_COMPILER_GCC | GLM_COMPILER_CLANG | GLM_COMPILER_INTEL)
 #	define GLM_DEPRECATED __attribute__((__deprecated__))
 #	define GLM_ALIGNED_TYPEDEF(type, name, alignment) typedef type name __attribute__((aligned(alignment)))
 #elif (GLM_COMPILER & GLM_COMPILER_CUDA) || (GLM_COMPILER & GLM_COMPILER_HIP)
 #	define GLM_DEPRECATED
-#	define GLM_ALIGNED_TYPEDEF(type, name, alignment) typedef type name __align__(x)
+#	define GLM_ALIGNED_TYPEDEF(type, modelPath, alignment) typedef type modelPath __align__(x)
 #else
 #	define GLM_DEPRECATED
-#	define GLM_ALIGNED_TYPEDEF(type, name, alignment) typedef type name
+#	define GLM_ALIGNED_TYPEDEF(type, modelPath, alignment) typedef type modelPath
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -1093,7 +1093,7 @@ namespace detail
 #		pragma message("GLM: Unknown build target")
 #	endif//GLM_ARCH
 
-	// Report platform name
+	// Report platform modelPath
 #	if(GLM_PLATFORM & GLM_PLATFORM_QNXNTO)
 #		pragma message("GLM: QNX platform detected")
 //#	elif(GLM_PLATFORM & GLM_PLATFORM_IOS)

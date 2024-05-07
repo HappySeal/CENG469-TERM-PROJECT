@@ -14,30 +14,59 @@
 #define WIDTH 800
 #define HEIGHT 600
 
+
+GLfloat vertices[] = {
+        -0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,
+        -0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,
+        0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,
+        0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,
+        0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,
+};
+
+GLuint indices[] =
+{
+                0, 1, 2,
+                0, 2, 3,
+                0, 1, 4,
+                1, 2, 4,
+                2, 3, 4,
+                3, 0, 4
+};
+
+GLfloat lightVertices[] =
+        { //     COORDINATES     //
+                -0.1f, -0.1f,  0.1f,
+                -0.1f, -0.1f, -0.1f,
+                0.1f, -0.1f, -0.1f,
+                0.1f, -0.1f,  0.1f,
+                -0.1f,  0.1f,  0.1f,
+                -0.1f,  0.1f, -0.1f,
+                0.1f,  0.1f, -0.1f,
+                0.1f,  0.1f,  0.1f
+        };
+
+GLuint lightIndices[] =
+        {
+                0, 1, 2,
+                0, 2, 3,
+                0, 4, 7,
+                0, 7, 3,
+                3, 7, 6,
+                3, 6, 2,
+                2, 6, 5,
+                2, 5, 1,
+                1, 5, 4,
+                1, 4, 0,
+                4, 5, 6,
+                4, 6, 7
+        };
+
 int main(){
     glfwInit();
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // Notating we are using OpenGL 3.x
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3); // Notating we are using OpenGL 3.3
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Notating we are using OpenGL Core Profile
-
-    GLfloat vertices[] = {
-            -0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,
-            -0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,
-            0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,
-            0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,
-            0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,
-    };
-
-    GLuint indices[] =
-            {
-                    0, 1, 2,
-                    0, 2, 3,
-                    0, 1, 4,
-                    1, 2, 4,
-                    2, 3, 4,
-                    3, 0, 4
-            };
 
     GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
     if(window == NULL){
@@ -63,11 +92,41 @@ int main(){
 
     VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(GLfloat), (void*)0);
     VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
-    VAO1.Unbind();
 
+    VAO1.Unbind();
     VBO1.Unbind();
     EBO1.Unbind();
 
+    Shader lightShader("./resources/Shaders/light.vert","./resources/Shaders/light.frag");
+
+    VAO lightVAO;
+    lightVAO.Bind();
+
+    VBO lightVBO(lightVertices, sizeof(lightVertices));
+    EBO lightEBO(lightIndices, sizeof(lightIndices));
+
+    lightVAO.LinkAttrib(lightVBO, 0, 3, GL_FLOAT, 3 * sizeof(GLfloat), (void*)0);
+
+    lightVAO.Unbind();
+    lightVBO.Unbind();
+    lightEBO.Unbind();
+
+    glm::vec4 lightColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+
+    glm::vec3 lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
+    glm::mat4 lightModel = glm::mat4(1.0f);
+    lightModel = glm::translate(lightModel, lightPos);
+
+    glm::vec3 pyramidPos = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::mat4 pyramidModel = glm::mat4(1.0f);
+    pyramidModel = glm::translate(pyramidModel, pyramidPos);
+
+    lightShader.Activate();
+    lightShader.SetMat4("model", &lightModel);
+    lightShader.SetVec4f("lightColor", &lightColor);
+    shader.Activate();
+    shader.SetMat4("model", &pyramidModel);
+    shader.SetVec4f("lightColor", &lightColor);
 
 
     // Enable depth testing
@@ -81,24 +140,20 @@ int main(){
         // Clear the color buffer and depth buffer
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-        shader.Activate();
-        VAO1.Bind();
-
         // Draw the triangle
         camera.Inputs(window);
-        camera.Matrix(45.0f, 0.1f, 100.0f, shader, "camMatrix");
+        camera.updateMatrix(45.0f, 0.1f, 100.0f);
 
+        shader.Activate();
+        camera.Matrix(shader, "camMatrix");
+
+        VAO1.Bind();
         glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(int), GL_UNSIGNED_INT, 0);
 
-//        //Translate our triangle
-//        //model = glm::translate(model, glm::vec3(0.5f, 0.0f, 0.0f));
-//        model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-//
-//        unsigned int modelLoc = glGetUniformLocation(shader.ID, "model");
-//        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-//
-//        glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
+        lightShader.Activate();
+        camera.Matrix(lightShader, "camMatrix");
+        lightVAO.Bind();
+        glDrawElements(GL_TRIANGLES, sizeof(lightIndices)/sizeof(int), GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

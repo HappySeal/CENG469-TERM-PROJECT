@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 # Add the headers directory to the include path
 include_directories(headers)
+include_directories(sources)
 
 # Collect all source files from the sources directory
 file(GLOB SOURCES "sources/*.cpp")

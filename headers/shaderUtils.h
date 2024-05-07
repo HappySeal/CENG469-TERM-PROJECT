@@ -10,6 +10,8 @@
 #include <iostream>
 #include <iostream>
 #include <fstream>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <sstream>
 
 std::string get_file_content(const std::string& filePath);
@@ -21,6 +23,8 @@ public:
 
     void Activate();
     void Delete();
+    void SetMat4(const std::string& name, const glm::mat4* value) const;
+    void SetVec4f(const std::string &name, const glm::vec4 *vec) const;
 };
 
 
