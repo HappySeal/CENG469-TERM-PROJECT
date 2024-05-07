@@ -10,6 +10,7 @@
 #include "headers/EBO.h"
 #include "headers/VAO.h"
 #include "headers/Camera.h"
+#include "headers/Model.h"
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -82,21 +83,6 @@ int main(){
     // Shader
     Shader shader("./resources/Shaders/vert.glsl", "./resources/Shaders/frag.glsl");
 
-    // Create Vertex Array Object, Vertex Buffer Object and Element Buffer Object
-    VAO VAO1;
-
-    VAO1.Bind();
-
-    VBO VBO1(vertices, sizeof(vertices));
-    EBO EBO1(indices, sizeof(indices));
-
-    VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(GLfloat), (void*)0);
-    VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
-
-    VAO1.Unbind();
-    VBO1.Unbind();
-    EBO1.Unbind();
-
     Shader lightShader("./resources/Shaders/light.vert","./resources/Shaders/light.frag");
 
     VAO lightVAO;
@@ -110,6 +96,9 @@ int main(){
     lightVAO.Unbind();
     lightVBO.Unbind();
     lightEBO.Unbind();
+
+    Model model = Model("resources/Models/sphere.obj", glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(1.0f, 0.2f, 0.2f));
+
 
     glm::vec4 lightColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
 
@@ -146,9 +135,7 @@ int main(){
 
         shader.Activate();
         camera.Matrix(shader, "camMatrix");
-
-        VAO1.Bind();
-        glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(int), GL_UNSIGNED_INT, 0);
+        model.drawMesh();
 
         lightShader.Activate();
         camera.Matrix(lightShader, "camMatrix");
@@ -159,11 +146,6 @@ int main(){
         glfwPollEvents();
     }
 
-
-    // Clean up
-    VAO1.Delete();
-    VBO1.Delete();
-    EBO1.Delete();
 
     shader.Delete();
 

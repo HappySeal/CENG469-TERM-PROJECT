@@ -26,24 +26,32 @@ void Camera::Matrix(Shader &shader, const char *uniform) {
 }
 
 void Camera::Inputs(GLFWwindow *window) {
-    if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
+    if(glfwGetKey(window, FORWARD_KEY[this->keyBinding]) == GLFW_PRESS){
         Position += speed * Orientation;
     }
-    if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
+    if(glfwGetKey(window, BACKWARD_KEY[this->keyBinding]) == GLFW_PRESS){
         Position -= speed * Orientation;
     }
-    if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
+    if(glfwGetKey(window, LEFT_KEY[this->keyBinding]) == GLFW_PRESS){
         Position -= glm::normalize(glm::cross(Orientation, Up)) * speed;
     }
-    if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
+    if(glfwGetKey(window, RIGHT_KEY[this->keyBinding]) == GLFW_PRESS){
         Position += glm::normalize(glm::cross(Orientation, Up)) * speed;
     }
-    if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS){
+    if(glfwGetKey(window, UP_KEY[this->keyBinding]) == GLFW_PRESS){
         Position += Up * speed;
     }
-    if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS){
+    if(glfwGetKey(window, DOWN_KEY[this->keyBinding]) == GLFW_PRESS){
         Position -= Up * speed;
     }
+    if(glfwGetKey(window, LEFT_ROTATE_KEY[this->keyBinding]) == GLFW_PRESS){
+        Orientation = glm::rotate(Orientation, glm::radians(-speed * sensitivity / 10), Up);
+    }
+
+    if(glfwGetKey(window, RIGHT_ROTATE_KEY[this->keyBinding]) == GLFW_PRESS){
+        Orientation = glm::rotate(Orientation, glm::radians(speed * sensitivity / 10), Up);
+    }
+
     if(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS){
         speed = 0.5f;
     }else if(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE){
