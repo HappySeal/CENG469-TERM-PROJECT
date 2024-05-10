@@ -54,6 +54,7 @@ void Mesh::setupMesh()
         normalData[offset + 1] = normals[i].normal.y;
         normalData[offset + 2] = normals[i].normal.z;
     }
+
     std::cout << vertices.size() << " " << normals.size() << std::endl;
     // Upload vertex data to VBO
 
@@ -77,9 +78,11 @@ void Mesh::setupMesh()
     delete[] normalData;
 }
 
-void Mesh::drawMesh() {
-
+void Mesh::Bind(){
     glBindVertexArray(VAO);
+}
+
+void Mesh::drawMesh() {
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glDrawArrays(GL_TRIANGLES, 0, vertices.size());
     glBindVertexArray(0);

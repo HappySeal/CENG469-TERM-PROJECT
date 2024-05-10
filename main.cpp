@@ -11,6 +11,7 @@
 #include "headers/VAO.h"
 #include "headers/Camera.h"
 #include "headers/Model.h"
+#include "headers/Cubemap.h"
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -69,7 +70,7 @@ int main(){
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3); // Notating we are using OpenGL 3.3
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Notating we are using OpenGL Core Profile
 
-    GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "LearnOpenGL", NULL, NULL);
     if(window == NULL){
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -80,8 +81,19 @@ int main(){
 
     glewInit();
 
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+
+    Camera camera = Camera(WIDTH, HEIGHT, glm::vec3(0.0f, 0.0f, 3.0f), 45.0f, 0.1f, 100.0f);
+
+
+    Cubemap skybox = Cubemap("./resources/hdr/Beach.hdr", camera.projectionMatrix);
+
+    skybox.width = WIDTH;
+    skybox.height = HEIGHT;
     // Shader
     Shader shader("./resources/Shaders/vert.glsl", "./resources/Shaders/frag.glsl");
+
 
     Shader lightShader("./resources/Shaders/light.vert","./resources/Shaders/light.frag");
 
@@ -97,31 +109,39 @@ int main(){
     lightVBO.Unbind();
     lightEBO.Unbind();
 
-    Model model = Model("resources/Models/sphere.obj", glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(1.0f, 0.2f, 0.2f));
 
 
-    glm::vec4 lightColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+    Model model = Model("./resources/Models/sphere.obj", glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f), glm::vec4(1.0f, 1.0f, 0.2f, 1.0f));
 
-    glm::vec3 lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
+
+    glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+    glm::vec3 lightPos = glm::vec3(1.2f, -1.0f, 2.0f);
     glm::mat4 lightModel = glm::mat4(1.0f);
     lightModel = glm::translate(lightModel, lightPos);
 
-    glm::vec3 pyramidPos = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::mat4 pyramidModel = glm::mat4(1.0f);
-    pyramidModel = glm::translate(pyramidModel, pyramidPos);
+    glm::mat4 modelMatrix = model.ModelingMatrix();
 
     lightShader.Activate();
     lightShader.SetMat4("model", &lightModel);
     lightShader.SetVec4f("lightColor", &lightColor);
-    shader.Activate();
-    shader.SetMat4("model", &pyramidModel);
-    shader.SetVec4f("lightColor", &lightColor);
 
+    shader.Activate();
+    shader.SetMat4("model", &modelMatrix);
+    shader.SetVec4f("lightColor", &lightColor);
+    shader.SetVec3f("lightPos", &lightPos);
+    shader.SetVec4f("color",model.color.toVec4f());
+
+//    skybox.Bind();
+//    skybox.skybox->SetMat4("projection", &camera.projectionMatrix);
+
+    assert(glGetError() == GL_NO_ERROR);
 
     // Enable depth testing
-    glEnable(GL_DEPTH_TEST);
 
-    Camera camera = Camera(WIDTH, HEIGHT, glm::vec3(0.0f, 0.0f, 3.0f));
+    int scrWidth, scrHeight;
+    glfwGetFramebufferSize(window, &scrWidth, &scrHeight);
+    glViewport(0, 0, scrWidth, scrHeight);
 
     while (!glfwWindowShouldClose(window)){
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -130,17 +150,30 @@ int main(){
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Draw the triangle
-        camera.Inputs(window);
-        camera.updateMatrix(45.0f, 0.1f, 100.0f);
+        camera.HandleInputs(window);
+        skybox.HandleInput(window);
+
+
+        camera.updateMatrix();
+
+        skybox.BindIrradiance();
 
         shader.Activate();
+        shader.SetVec3f("cameraPos", &camera.Position);
         camera.Matrix(shader, "camMatrix");
+        model.bindMesh();
+        skybox.Bind();
+        shader.SetMat4("skyboxMatrix", &skybox.skyboxModelMatrix);
         model.drawMesh();
 
         lightShader.Activate();
         camera.Matrix(lightShader, "camMatrix");
         lightVAO.Bind();
         glDrawElements(GL_TRIANGLES, sizeof(lightIndices)/sizeof(int), GL_UNSIGNED_INT, 0);
+
+        skybox.Draw(camera.viewMatrix);
+        assert(glGetError() == GL_NO_ERROR);
+
 
         glfwSwapBuffers(window);
         glfwPollEvents();

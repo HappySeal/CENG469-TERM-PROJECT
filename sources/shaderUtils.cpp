@@ -24,22 +24,50 @@ Shader::Shader(const std::string& vertexShaderPath, const std::string& fragmentS
 
     ID = glCreateProgram();
     // Create Vertex Shader
+    std::cout << "Compiling vertex shader" << vertexShaderPath <<std::endl;
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    assert(glGetError() == GL_NO_ERROR);
+
     glShaderSource(vertexShader, 1, &vertexShaderSourceC, NULL);
     // Compile Vertex Shader
+    assert(glGetError() == GL_NO_ERROR);
+
     glCompileShader(vertexShader);
 
+    assert(glGetError() == GL_NO_ERROR);
+
+
+    std::cout << "Compiling fragment shader" << fragmentShaderPath <<std::endl;
     // Create Fragment Shader
+    assert(glGetError() == GL_NO_ERROR);
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+
     glShaderSource(fragmentShader, 1, &fragmentShaderSourceC, NULL);
     // Compile Fragment Shader
+    assert(glGetError() == GL_NO_ERROR);
+
     glCompileShader(fragmentShader);
+
+    assert(glGetError() == GL_NO_ERROR);
+
+
 
     // Attach Vertex and Fragment Shaders to Shader Program
     glAttachShader(ID, vertexShader);
     glAttachShader(ID, fragmentShader);
     // Link Shader Program
     glLinkProgram(ID);
+
+    assert(glGetError() == GL_NO_ERROR);
+
+    GLint status;
+    glGetProgramiv(ID, GL_LINK_STATUS, &status);
+
+    if (status != GL_TRUE)
+    {
+        std::cout << "Program link failed: " << status << std::endl;
+        exit(-1);
+    }
     // Delete Shaders (for getting rid of intermediate files)
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
@@ -59,4 +87,12 @@ void Shader::SetMat4(const std::string &name, const glm::mat4 *value) const {
 
 void Shader::SetVec4f(const std::string &name, const glm::vec4 *vec) const {
     glUniform4f(glGetUniformLocation(ID, name.c_str()), vec->x, vec->y, vec->z, vec->w);
+}
+
+void Shader::SetVec3f(const std::string &name, const glm::vec3 *vec) const {
+    glUniform3f(glGetUniformLocation(ID, name.c_str()), vec->x, vec->y, vec->z);
+}
+
+void Shader::SetInt(const std::string &name, const int value) const {
+    glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
 }

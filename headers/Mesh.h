@@ -8,6 +8,7 @@
 #include <vector>
 #include "Vertex.h"
 #include "Normal.h"
+#include "Color.h"
 
 class Mesh
 {
@@ -21,9 +22,10 @@ public:
     int NormalDataSize() const;
     int IndexDataSize();
 
-    unsigned int VAO, points_vbo, normals_vbo;
+    unsigned int VAO, points_vbo, normals_vbo, color_vbo;
     // void setupMeshIndexed();
     // void drawMeshIndexed();
+    void Bind();
     void setupMesh();
     void drawMesh();
     void calculateNormals();

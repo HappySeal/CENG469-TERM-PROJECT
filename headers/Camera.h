@@ -39,6 +39,8 @@ public:
     glm::vec3 Position;
     glm::vec3 Orientation;
     glm::vec3 Up;
+    glm::mat4 viewMatrix;
+    glm::mat4 projectionMatrix;
     glm::mat4 cameraMatrix;
 
     bool firstClick = true;
@@ -51,10 +53,10 @@ public:
 
     KEY_BINDING keyBinding = WASD_KEYS;
 
-    Camera(int _width, int _height, glm::vec3 pos = glm::vec3(0,0,0));
-    void updateMatrix(float FOVdeg, float nearPlane, float farPlane);
+    Camera(int _width, int _height, glm::vec3 pos = glm::vec3(0,0,0), float _FOVdeg = 45.0f, float _nearPlane = 0.1f, float _farPlane = 100.0f);
+    void updateMatrix();
     void Matrix(Shader& shader, const char* uniform);
-    void Inputs(GLFWwindow* window);
+    void HandleInputs(GLFWwindow* window);
 };
 
 #endif //SAMPLEGL_CAMERA_H

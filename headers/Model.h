@@ -23,6 +23,7 @@
 #include <glm/glm.hpp> // GL Math library header
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#define GLM_ENABLE_EXPERIMENTAL 1
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include "Mesh.h"
@@ -37,22 +38,24 @@ public:
     glm::vec3 position;
     glm::vec3 angleInDegrees;
     glm::vec3 scale;
-    glm::vec3 color;
+    Color color;
+
     int renderMode = 0;
 
     bool isSubdivision = false;
-    Model(const char* meshFileName, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, glm::vec3 clr)
+    Model(const char* meshFileName, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, glm::vec4 clr)
     {
         Mesh* initialMesh = new Mesh();
         if(!Parser::ParseObj(meshFileName, initialMesh)){
             std::cout << "Error parsing obj file" << std::endl;
         }
+        std::cout << "Loading model: " << meshFileName << std::endl;
         meshes.push_back(initialMesh);
         this->position = position;
         this->angleInDegrees = rotation;
         this->scale = scale;
         index = 0;
-        color = clr;
+        color = Color(clr);
         meshes[0]->setupMesh();
 
     }
@@ -78,6 +81,10 @@ public:
     glm::mat4 ModelingMatrix()
     {
         return TranslationMatrix() * RotationMatrix() * ScaleMatrix();
+    }
+
+    void bindMesh(){
+        meshes[index]->Bind();
     }
 
     void drawMesh(){

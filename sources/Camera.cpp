@@ -4,20 +4,20 @@
 
 #include "../headers/Camera.h"
 
-Camera::Camera(int _width, int _height, glm::vec3 pos){
+Camera::Camera(int _width, int _height, glm::vec3 pos, float _FOVdeg, float _nearPlane, float _farPlane){
     Position = pos;
     Orientation = glm::vec3(0.0f, 0.0f, -1.0f);
     Up = glm::vec3(0.0f, 1.0f, 0.0f);
     cameraMatrix = glm::mat4(1.0f);
     width = _width;
     height = _height;
+    projectionMatrix = glm::perspective(glm::radians(_FOVdeg), (float)width / (float)height, _nearPlane, _farPlane);
 }
 
-void Camera::updateMatrix(float FOVdeg, float nearPlane, float farPlane){
-    glm::mat4 view = glm::lookAt(Position, Position + Orientation, Up);
-    glm::mat4 projection = glm::perspective(glm::radians(FOVdeg), (float)width / height, nearPlane, farPlane);
+void Camera::updateMatrix(){
+    viewMatrix = glm::lookAt(Position, Position + Orientation, Up);
 
-    cameraMatrix = projection * view;
+    cameraMatrix = projectionMatrix * viewMatrix;
 }
 
 void Camera::Matrix(Shader &shader, const char *uniform) {
@@ -25,7 +25,7 @@ void Camera::Matrix(Shader &shader, const char *uniform) {
     glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(cameraMatrix));
 }
 
-void Camera::Inputs(GLFWwindow *window) {
+void Camera::HandleInputs(GLFWwindow *window) {
     if(glfwGetKey(window, FORWARD_KEY[this->keyBinding]) == GLFW_PRESS){
         Position += speed * Orientation;
     }
