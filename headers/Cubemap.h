@@ -12,9 +12,11 @@
 #include <string>
 #include "../headers/Model.h"
 #include "../headers/shaderUtils.h"
+#include "../interfaces/IControllable.h"
+#include "../interfaces/IInputListener.h"
 
 
-class Cubemap {
+class Cubemap : public IControllable, public IInputListener{
 public:
     GLuint ID;
     unsigned int envCubemap;
@@ -25,8 +27,10 @@ public:
     Shader *skybox;
     Shader *equirectangularToCubemap;
     Shader *irradianceShader;
-    float angle;
     glm::mat4 skyboxModelMatrix;
+
+    float angle;
+    float exposure;
 
     Cubemap(const std::string& texturePath, glm::mat4 &projection);
     void Bind();
@@ -34,7 +38,9 @@ public:
     void Delete();
     void BindIrradiance();
     void Draw(glm::mat4 &view);
-    void HandleInput(GLFWwindow *window);
+
+    void OnKeyInput(int key, int action) override;
+    void HandleControl(GLFWwindow *window) override;
 };
 
 #endif //SAMPLEGL_CUBEMAP_H

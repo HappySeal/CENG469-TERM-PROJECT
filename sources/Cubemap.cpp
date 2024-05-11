@@ -10,6 +10,8 @@
 
 
 Cubemap::Cubemap(const std::string& texturePath, glm::mat4 &projection) {
+    int skyboxRes = 2048;
+
     model = new Model("./resources/Models/cube.obj", glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f), glm::vec4(1.0f));
 
     skybox = new Shader("./resources/Shaders/skybox.vert", "./resources/Shaders/skybox.frag");
@@ -17,6 +19,7 @@ Cubemap::Cubemap(const std::string& texturePath, glm::mat4 &projection) {
     irradianceShader = new Shader("./resources/Shaders/eqrt2cm.vert", "./resources/shaders/irradiance.frag");
     skyboxModelMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
 
+    exposure = 0.18f;
 
     skybox->Activate();
     skybox->SetInt("environmentMap", 0);
@@ -29,7 +32,7 @@ Cubemap::Cubemap(const std::string& texturePath, glm::mat4 &projection) {
     glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
     glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
 
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, skyboxRes, skyboxRes);
 
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, captureRBO);
 
@@ -62,7 +65,7 @@ Cubemap::Cubemap(const std::string& texturePath, glm::mat4 &projection) {
     glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
     for (unsigned int i = 0; i < 6; ++i)
     {
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB32F, 512, 512, 0, GL_RGB, GL_FLOAT, nullptr);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB32F, skyboxRes, skyboxRes, 0, GL_RGB, GL_FLOAT, nullptr);
     }
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -95,7 +98,7 @@ Cubemap::Cubemap(const std::string& texturePath, glm::mat4 &projection) {
     assert(glGetError() == GL_NO_ERROR);
 
 
-    glViewport(0, 0, 512, 512); // don't forget to configure the viewport to the capture dimensions.
+    glViewport(0, 0, skyboxRes, skyboxRes); // don't forget to configure the viewport to the capture dimensions.
     glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
     for (unsigned int i = 0; i < 6; ++i)
     {
@@ -146,6 +149,7 @@ Cubemap::Cubemap(const std::string& texturePath, glm::mat4 &projection) {
 
     skybox->Activate();
     skybox->SetMat4("projection", &projection);
+    skybox->SetFloat("exposure",exposure);
 
     assert(glGetError() == GL_NO_ERROR);
 }
@@ -172,6 +176,7 @@ void Cubemap::Draw(glm::mat4 &view) {
     skybox->Activate();
     skybox->SetMat4("view", &view);
     skybox->SetMat4("model", &skyboxModelMatrix);
+    skybox->SetFloat("exposure",exposure);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
@@ -179,12 +184,23 @@ void Cubemap::Draw(glm::mat4 &view) {
     model->drawMesh();
 }
 
-void Cubemap::HandleInput(GLFWwindow *window) {
-    if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
+void Cubemap::OnKeyInput(int key, int action) {
+    if(key == GLFW_KEY_W && action == GLFW_RELEASE){
+        exposure *= 2.f;
+    }
+
+    if(key == GLFW_KEY_S && action == GLFW_RELEASE){
+        exposure /= 2.f;
+    }
+}
+
+void Cubemap::HandleControl(GLFWwindow *window) {
+
+    if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
         angle += 1.0f;
         skyboxModelMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
     }
-    if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
+    if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
         angle -= 1.0f;
         skyboxModelMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
     }

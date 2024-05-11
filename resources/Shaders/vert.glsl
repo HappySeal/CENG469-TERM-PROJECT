@@ -14,5 +14,5 @@ void main(){
    currentPos = vec3(model * vec4(aPos,1.0f));
 
    gl_Position = camMatrix * vec4(currentPos, 1.0);
-   Normal = aNormal;
+   Normal = mat3(transpose(inverse(model))) * aNormal;
 }

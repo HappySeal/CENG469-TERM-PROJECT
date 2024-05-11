@@ -15,6 +15,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/vector_angle.hpp>
 #include "shaderUtils.h"
+#include "../interfaces/IControllable.h"
 
 // two different key bindings for arrow keys and wasd keys
 enum KEY_BINDING {
@@ -23,10 +24,10 @@ enum KEY_BINDING {
 };
 
 // corresponding keys according to key binding
-const int FORWARD_KEY[2] = {GLFW_KEY_UP, GLFW_KEY_W};
-const int BACKWARD_KEY[2] = {GLFW_KEY_DOWN, GLFW_KEY_S};
-const int LEFT_KEY[2] = {GLFW_KEY_LEFT, GLFW_KEY_A};
-const int RIGHT_KEY[2] = {GLFW_KEY_RIGHT, GLFW_KEY_D};
+const int FORWARD_KEY[2] = {GLFW_KEY_UP, GLFW_KEY_I};
+const int BACKWARD_KEY[2] = {GLFW_KEY_DOWN, GLFW_KEY_K};
+const int LEFT_KEY[2] = {GLFW_KEY_LEFT, GLFW_KEY_J};
+const int RIGHT_KEY[2] = {GLFW_KEY_RIGHT, GLFW_KEY_L};
 
 const int UP_KEY[2] = {GLFW_KEY_PAGE_UP, GLFW_KEY_SPACE};
 const int DOWN_KEY[2] = {GLFW_KEY_PAGE_DOWN, GLFW_KEY_LEFT_SHIFT};
@@ -34,7 +35,7 @@ const int LEFT_ROTATE_KEY[2] = {GLFW_KEY_LEFT, GLFW_KEY_Q};
 const int RIGHT_ROTATE_KEY[2] = {GLFW_KEY_RIGHT, GLFW_KEY_E};
 
 
-class Camera {
+class Camera: public IControllable {
 public:
     glm::vec3 Position;
     glm::vec3 Orientation;
@@ -56,7 +57,7 @@ public:
     Camera(int _width, int _height, glm::vec3 pos = glm::vec3(0,0,0), float _FOVdeg = 45.0f, float _nearPlane = 0.1f, float _farPlane = 100.0f);
     void updateMatrix();
     void Matrix(Shader& shader, const char* uniform);
-    void HandleInputs(GLFWwindow* window);
+    void HandleControl(GLFWwindow* window) override;
 };
 
 #endif //SAMPLEGL_CAMERA_H

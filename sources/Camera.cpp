@@ -25,7 +25,7 @@ void Camera::Matrix(Shader &shader, const char *uniform) {
     glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(cameraMatrix));
 }
 
-void Camera::HandleInputs(GLFWwindow *window) {
+void Camera::HandleControl(GLFWwindow *window) {
     if(glfwGetKey(window, FORWARD_KEY[this->keyBinding]) == GLFW_PRESS){
         Position += speed * Orientation;
     }
