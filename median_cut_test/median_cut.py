@@ -1,40 +1,76 @@
 import numpy as np
-from collections import namedtuple
+from itertools import product
 
-# Define a namedtuple to represent a cube in the color space
-Cube = namedtuple('Cube', ['colors', 'min_vals', 'max_vals'])
+def scale_by_cos_phi(image):
+    """
+    Scale the image by cos(φ) where φ is the pixel’s angle of inclination.
+    """
+    height, width = image.shape[:2]
+    y_indices, x_indices = np.indices((height, width))
+    phi = (y_indices / height - 0.5) * np.pi  # Angle of inclination
+    cos_phi = np.cos(phi)
+    scaled_image = image * cos_phi[:, :, np.newaxis]
+    return scaled_image
 
-def median_cut(image, num_colors):
-    # Flatten the image into a list of RGB pixels
-    pixels = np.reshape(image, (-1, 3))
+def compute_monochrome_image(image):
+    """
+    Compute the monochrome version of the image using the specified formula.
+    """
+    return 0.2125 * image[:, :, 0] + 0.7154 * image[:, :, 1] + 0.0721 * image[:, :, 2]
 
-    # Initial cube contains all the pixels
-    initial_cube = Cube(colors=pixels, min_vals=np.min(pixels, axis=0), max_vals=np.max(pixels, axis=0))
-    cubes = [initial_cube]
+def compute_total_energy(image):
+    """
+    Compute the total energy within the image using a summed area table.
+    """
+    summed_area_table = np.zeros_like(image)
+    summed_area_table[0, 0] = image[0, 0]
+    for i in range(1, image.shape[0]):
+        summed_area_table[i, 0] = summed_area_table[i - 1, 0] + image[i, 0]
+    for j in range(1, image.shape[1]):
+        summed_area_table[0, j] = summed_area_table[0, j - 1] + image[0, j]
+    for i, j in product(range(1, image.shape[0]), range(1, image.shape[1])):
+        summed_area_table[i, j] = (image[i, j] +
+                                   summed_area_table[i - 1, j] +
+                                   summed_area_table[i, j - 1] -
+                                   summed_area_table[i - 1, j - 1])
+    return summed_area_table
 
-    while len(cubes) < num_colors:
-        # Find the cube with the maximum side length
-        max_cube_idx = max(range(len(cubes)), key=lambda i: np.max(cubes[i].max_vals - cubes[i].min_vals))
-        max_cube = cubes.pop(max_cube_idx)
+def partition_image(image, n):
+    """
+    Partition the image into 2^n regions of similar light energy.
+    """
+    scaled_image = scale_by_cos_phi(image)
+    monochrome_image = compute_monochrome_image(scaled_image)
+    total_energy = compute_total_energy(monochrome_image)
 
-        # Determine the longest dimension of the cube
-        split_axis = np.argmax(max_cube.max_vals - max_cube.min_vals)
+    regions = [(0, 0, image.shape[0], image.shape[1])]  # Initialize with the entire image as a region
 
-        # Sort colors along the chosen axis and split the cube
-        colors = max_cube.colors[max_cube.colors[:, split_axis].argsort()]
-        median_index = len(colors) // 2
-        left_cube = Cube(colors=colors[:median_index], min_vals=max_cube.min_vals,
-                         max_vals=np.max(colors[:median_index], axis=0))
-        right_cube = Cube(colors=colors[median_index:],
-                          min_vals=np.min(colors[median_index:], axis=0), max_vals=max_cube.max_vals)
+    for _ in range(n):
+        new_regions = []
+        for region in regions:
+            y, x, height, width = region
+            subregions = []
+            if height > width:
+                # Divide along the vertical axis
+                total_vertical_energy = total_energy[y + height - 1, x] - (total_energy[y - 1, x] if y > 0 else 0)
+                cumulative_energy = 0
+                for i in range(y, y + height):
+                    cumulative_energy += total_energy[i, x]
+                    if cumulative_energy >= total_vertical_energy / 2:
+                        subregions.append((y, x, i - y + 1, width))
+                        subregions.append((y + i - y + 1, x, height - (i - y + 1), width))
+                        break
+            else:
+                # Divide along the horizontal axis
+                total_horizontal_energy = total_energy[y, x + width - 1] - (total_energy[y, x - 1] if x > 0 else 0)
+                cumulative_energy = 0
+                for j in range(x, x + width):
+                    cumulative_energy += total_energy[y, j]
+                    if cumulative_energy >= total_horizontal_energy / 2:
+                        subregions.append((y, x, height, j - x + 1))
+                        subregions.append((y, x + j - x + 1, height, width - (j - x + 1)))
+                        break
+            new_regions.extend(subregions)
+        regions = new_regions
 
-        # Add the split cubes back to the list
-        cubes.extend([left_cube, right_cube])
-
-    # Return the median colors of the cubes
-    return [np.median(cube.colors, axis=0).astype(int) for cube in cubes]
-
-# Example usage:
-# Assuming you have an image represented as a numpy array called 'image'
-# with shape (height, width, 3) and num_colors is the desired number of colors
-# representative_colors = median_cut(image, num_colors)
+    return regions

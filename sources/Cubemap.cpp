@@ -4,9 +4,10 @@
 
 #include "../headers/Cubemap.h"
 
-
+#ifndef STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 #include "../headers/stb_image.h"
+#endif
 
 
 Cubemap::Cubemap(const std::string& texturePath, glm::mat4 &projection) {
@@ -40,6 +41,8 @@ Cubemap::Cubemap(const std::string& texturePath, glm::mat4 &projection) {
     stbi_set_flip_vertically_on_load(true);
     int _width, _height, nrComponents;
     float *data = stbi_loadf(texturePath.c_str(), &_width, &_height, &nrComponents, 0);
+    //cout first couple of data
+
     unsigned int hdrTexture;
     if (data)
     {

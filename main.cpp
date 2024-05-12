@@ -3,15 +3,12 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #include "headers/shaderUtils.h"
-#include "headers/VBO.h"
-#include "headers/EBO.h"
-#include "headers/VAO.h"
 #include "headers/Camera.h"
 #include "headers/Model.h"
 #include "headers/Cubemap.h"
+#include "headers/MedianCut.h"
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -20,6 +17,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 Camera* camera;
 Cubemap* skybox;
+MedianCut* medianCut;
 
 
 
@@ -44,19 +42,14 @@ int main(){
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
 
-    camera = new Camera(WIDTH, HEIGHT, glm::vec3(0.0f, 0.0f, 3.0f), 45.0f, 0.1f, 100.0f);
-
-
+    camera = new Camera(WIDTH, HEIGHT, glm::vec3(0.0f, 0.0f, 3.0f), 90.0f, 0.1f, 100.0f);
     skybox = new Cubemap("./resources/hdr/Thumersbach.hdr", camera->projectionMatrix);
+    medianCut = new MedianCut("./resources/hdr/Thumersbach.hdr");
 
     skybox->width = WIDTH;
     skybox->height = HEIGHT;
     // Shader
     Shader shader("./resources/Shaders/vert.glsl", "./resources/Shaders/frag.glsl");
-
-
-    Shader lightShader("./resources/Shaders/light.vert","./resources/Shaders/light.frag");
-
     Model model = Model("./resources/Models/sphere.obj", glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f), glm::vec4(1.0f, 1.0f, 0.2f, 1.0f));
 
 
