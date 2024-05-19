@@ -19,6 +19,14 @@ Camera* camera;
 Cubemap* skybox;
 MedianCut* medianCut;
 
+enum RenderMode{
+    LIGHTPROBE,
+    MIRROR,
+    GLASS,
+    GLOSSY,
+    SPECULARDISCO
+} renderMode = LIGHTPROBE;
+
 
 
 int main(){
@@ -45,11 +53,14 @@ int main(){
     camera = new Camera(WIDTH, HEIGHT, glm::vec3(0.0f, 0.0f, 3.0f), 90.0f, 0.1f, 100.0f);
     skybox = new Cubemap("./resources/hdr/Thumersbach.hdr", camera->projectionMatrix);
     medianCut = new MedianCut("./resources/hdr/Thumersbach.hdr");
+    medianCut->calculate();
 
     skybox->width = WIDTH;
     skybox->height = HEIGHT;
     // Shader
-    Shader shader("./resources/Shaders/vert.glsl", "./resources/Shaders/frag.glsl");
+    Shader mirrorShader("./resources/Shaders/vert.glsl", "./resources/Shaders/mirrorfrag.glsl");
+    Shader lightProbeShader("./resources/Shaders/vert.glsl", "./resources/Shaders/lightprobefrag.glsl");
+
     Model model = Model("./resources/Models/sphere.obj", glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f), glm::vec4(1.0f, 1.0f, 0.2f, 1.0f));
 
 
@@ -57,9 +68,13 @@ int main(){
 
     glm::mat4 modelMatrix = model.ModelingMatrix();
 
-    shader.Activate();
-    shader.SetMat4("model", &modelMatrix);
-    shader.SetVec4f("color",model.color.toVec4f());
+    mirrorShader.Activate();
+    mirrorShader.SetMat4("model", &modelMatrix);
+    mirrorShader.SetVec4f("color", model.color.toVec4f());
+
+    lightProbeShader.Activate();
+    lightProbeShader.SetMat4("model", &modelMatrix);
+
 
 //    skybox->Bind();
 //    skybox->skybox->SetMat4("projection", &camera->projectionMatrix);
@@ -74,6 +89,12 @@ int main(){
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetKeyCallback(window, key_callback);
+//
+//    std::cout << "Light count " << (int)(medianCut->lightPointsByIter[medianCut->iterationCount]).size() << std::endl;
+//    for (int i = 0; i < medianCut->lightPointsByIter[medianCut->iterationCount].size(); ++i) {
+//        std::cout << "Light point " << i << ": " << medianCut->lightPointsByIter[medianCut->iterationCount][i].pos.x << " " << medianCut->lightPointsByIter[medianCut->iterationCount][i].pos.y << " " << medianCut->lightPointsByIter[medianCut->iterationCount][i].pos.z << " " << medianCut->lightPointsByIter[medianCut->iterationCount][i].color.r << " " << medianCut->lightPointsByIter[medianCut->iterationCount][i].color.g << " " << medianCut->lightPointsByIter[medianCut->iterationCount][i].color.b << std::endl;
+//    }
+
 
     while (!glfwWindowShouldClose(window)){
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -87,12 +108,37 @@ int main(){
 
         skybox->BindIrradiance();
 
-        shader.Activate();
-        shader.SetVec3f("cameraPos", &camera->Position);
-        camera->Matrix(shader, "camMatrix");
+        switch (renderMode) {
+            case LIGHTPROBE:
+                lightProbeShader.Activate();
+                lightProbeShader.SetInt("environmentMap", 0);
+                lightProbeShader.SetInt("numLights", medianCut->numberOfLights);
+                lightProbeShader.SetFloat("exposure", skybox->exposure);
+                lightProbeShader.SetVec3f("cameraPos", &camera->Position);
+                for (int i = 0; i < medianCut->lights.size(); ++i) {
+                    lightProbeShader.SetVec3f("lights[" + std::to_string(i) + "].pos", &medianCut->lights[i].pos);
+                    lightProbeShader.SetVec3f("lights[" + std::to_string(i) + "].color", &medianCut->lights[i].color);
+                }
+                camera->Matrix(lightProbeShader, "camMatrix");
+                //print
+                break;
+            case MIRROR:
+                mirrorShader.Activate();
+                mirrorShader.SetVec3f("cameraPos", &camera->Position);
+                mirrorShader.SetFloat("exposure", skybox->exposure);
+                mirrorShader.SetMat4("skyboxMatrix", &skybox->skyboxModelMatrix);
+                camera->Matrix(mirrorShader, "camMatrix");
+                break;
+            case GLASS:
+                break;
+            case GLOSSY:
+                break;
+            case SPECULARDISCO:
+                break;
+        }
+
         model.bindMesh();
         skybox->Bind();
-        shader.SetMat4("skyboxMatrix", &skybox->skyboxModelMatrix);
         model.drawMesh();
 
         skybox->Draw(camera->viewMatrix);
@@ -104,7 +150,7 @@ int main(){
     }
 
 
-    shader.Delete();
+    mirrorShader.Delete();
 
     glfwDestroyWindow(window);
     glfwTerminate();
@@ -119,6 +165,32 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     skybox->OnKeyInput(key, action);
+    medianCut->OnKeyInput(key, action);
+
+    if(key == GLFW_KEY_1 && action == GLFW_PRESS){
+        renderMode = LIGHTPROBE;
+        std::cout << "Light Probe" << std::endl;
+    }
+
+    if(key == GLFW_KEY_2 && action == GLFW_PRESS){
+        renderMode = MIRROR;
+        std::cout << "Mirror" << std::endl;
+    }
+
+    if(key == GLFW_KEY_3 && action == GLFW_PRESS){
+        renderMode = GLASS;
+        std::cout << "Glass" << std::endl;
+    }
+
+    if(key == GLFW_KEY_4 && action == GLFW_PRESS){
+        renderMode = GLOSSY;
+        std::cout << "Glossy" << std::endl;
+    }
+
+    if(key == GLFW_KEY_5 && action == GLFW_PRESS){
+        renderMode = SPECULARDISCO;
+        std::cout << "Specular Disco" << std::endl;
+    }
 
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GLFW_TRUE);

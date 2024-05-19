@@ -4,156 +4,118 @@
 
 #include "../headers/MedianCut.h"
 
-//#ifndef STB_IMAGE_IMPLEMENTATION
-//#define STB_IMAGE_IMPLEMENTATION
-//#endif
-
-struct Luxel {
-    float lum;
-    int index;
-    Luxel(float _lum, int _index) {
-        lum = _lum;
-        index = _index;
-    }
-    Luxel() {
-        lum = 0;
-        index = 0;
-    }
-};
-
-struct{
-    bool operator()(Luxel a, Luxel b) const
-    {
-        return a.lum < b.lum;
-    }
-} customLess;
-
-std::vector<Luxel> splitVector(const std::vector<Luxel>& data, Region& region, int width) {
-    std::vector<Luxel> subvector = std::vector<Luxel>();
-
-    for (int i = region.startY; i < region.endY; ++i) {
-        // Calculate starting index in the original vector
-        int startIndex = i * width + region.startX;
-        // Calculate ending index in the original vector
-        int endIndex = i * width + region.endX;
-        // Append the elements from startIndex to endIndex to the subvector
-        subvector.insert(subvector.end(), data.begin() + startIndex, data.begin() + endIndex + 1);
-    }
-    return subvector;
+float Summed_Region_Table::sum(int x0, int y0, int x1, int y1) const {
+    return I(x1, y1) - I(x0, y1) - I(x1, y0) + I(x0, y0);
 }
 
-int findMedianIndex(const std::vector<Luxel>& data) {
-    std::vector<Luxel> sortedData = std::vector<Luxel>(data);
-    std::sort(sortedData.begin(), sortedData.end(), customLess);
-    Luxel median = sortedData[sortedData.size() / 2];
-    //find index of median in subvector
-    return median.index;
+glm::vec3 UnSampleSphericalMap(glm::vec2 uv)
+{
+    uv -= 0.5;
+    uv /= glm::vec2(0.1591, 0.3183);
+    return glm::vec3(cos(uv.y) * cos(uv.x), sin(uv.y), cos(uv.y) * sin(uv.x));
 }
 
-MedianCut::MedianCut(const std::string& texturePath) {
-    iterationCount = 1;
+void split_region(const Region& region, size_t n, std::vector<Region>& regions){
+    if(region.width < 2 || region.height < 2 || n == 0){
+        regions.push_back(region);
+        return;
+    }
+
+    Region A, B;
+
+    if(region.width > region.height) {
+        region.split_w(A, B);
+    }else{
+        region.split_h(A, B);
+    }
+
+    split_region(A, n-1, regions);
+    split_region(B, n-1, regions);
+}
+
+void get_light_color(const Summed_Region_Table& r_srt, const Summed_Region_Table& g_srt, const Summed_Region_Table& b_srt, const Region& region, glm::vec3& color){
+    float r = r_srt.sum(region.startX, region.startY, region.startX + region.width, region.startY + region.height);
+    float g = g_srt.sum(region.startX, region.startY, region.startX + region.width, region.startY + region.height);
+    float b = b_srt.sum(region.startX, region.startY, region.startX + region.width, region.startY + region.height);
+
+    float area = region.width * region.height;
+    color = glm::vec3(r, g, b);
+    std::cout << "Color: " << color.x << " " << color.y << " " << color.z << "|| Area: " << area << std::endl;
+}
+
+
+void create_lights(const std::vector<Region>& regions, std::vector<LightPoint>& lights, const Summed_Region_Table& r_srt, const Summed_Region_Table& g_srt, const Summed_Region_Table& b_srt, int width, int height){
+    for(size_t i = 0; i < regions.size(); ++i){
+        glm::vec2 centroid = regions[i].centroid();
+        centroid.x /= (float)width;
+        centroid.y /= (float)height;
+        glm::vec3 worldPos = UnSampleSphericalMap(centroid);
+        glm::vec3 color;
+
+        get_light_color(r_srt, g_srt, b_srt, regions[i], color);
+
+        LightPoint lp;
+        lp.pos = worldPos;
+        lp.color = color;
+        lights.push_back(lp);
+    }
+}
+
+void median_cut(const Summed_Region_Table& img, size_t n, std::vector<Region>& regions){
+    regions.clear();
+
+    Region r(0, 0, img.width_, img.height_, &img);
+
+    split_region(r, n, regions);
+}
+
+MedianCut::MedianCut(const std::string& _texturePath) {
+    iterationCount = 5;
+    texturePath = _texturePath;
 
     // Load HDR and create skybox
+}
+
+void MedianCut::calculate() {
+    numberOfLights = pow(2, iterationCount);
+    regions.clear();
+    lights.clear();
+
     stbi_set_flip_vertically_on_load(true);
     int _width, _height, nrComponents;
     float *data = stbi_loadf(texturePath.c_str(), &_width, &_height, &nrComponents, 0);
-    std::vector<Luxel> lum_data = std::vector<Luxel>(_width * _height);
-    unsigned int hdrTexture;
-    if (data)
-    {
-        glGenTextures(1, &hdrTexture);
-        glBindTexture(GL_TEXTURE_2D, hdrTexture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, _width, _height, 0, GL_RGB, GL_FLOAT, data); // note how we specify the texture's data value to be float
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    }
-    else
-    {
-        std::cout << "Failed to load HDR image." << std::endl;
-        std::exit(-1);
-    }
+    Summed_Region_Table lum_srt;
+
+    Summed_Region_Table r_srt;
+    Summed_Region_Table g_srt;
+    Summed_Region_Table b_srt;
+
+    lum_srt.create_lum(data, _width, _height, nrComponents);
+    r_srt.create_r(data, _width, _height, nrComponents);
+    g_srt.create_g(data, _width, _height, nrComponents);
+    b_srt.create_b(data, _width, _height, nrComponents);
 
 
-//    //calculate time to take median cut
-//    auto start = std::chrono::high_resolution_clock::now();
-//    auto img = std::vector<float>(data, data + _width * _height * nrComponents);
-//    scaleByCosPhi(img, _width, _height);
-    // Convert to luminance
-    for (int i = 0; i < _height*_width; ++i) {
-        lum_data[i] = Luxel(0.2126f * data[i*3] + 0.7152f * data[i*3+1] + 0.0722f * data[i*3+2], i);
-    }
+    median_cut(lum_srt, iterationCount, regions);
 
-    stbi_image_free(data);
-
-    regions.push_back(Region(0, 0, _width, _height, findMedianIndex(lum_data)));
-
-    // Median cut
-    while (regions.size() < pow(2, iterationCount)){ // NOLINT(*-narrowing-conversions)
-        std::vector<Region> newRegions;
-        for (Region region : regions) {
-            int width = region.endX - region.startX;
-            int height = region.endY - region.startY;
-
-            int medianIndex = region.centroidIndex;
-
-            int medianIndexX = medianIndex % _width;
-            int medianIndexY = medianIndex / _width;
-
-            float inclination = abs(((float)(region.startY + region.endY) / 2.0f - (float)_height / 2.0f) / ((float)(region.startX + region.endX) / 2.0f - (float)_width / 2.0f));
-
-            // Split the region
-            if ((float)width * inclination > (float)height) {
-                Region newRegion1(region.startX, region.startY, medianIndexX, region.endY, 0);
-                Region newRegion2(medianIndexX + 1, region.startY, region.endX, region.endY, 0);
-
-
-                newRegion1.centroidIndex = findMedianIndex(splitVector(lum_data, newRegion1, _width));
-                newRegion2.centroidIndex = findMedianIndex(splitVector(lum_data, newRegion2, _width));
-
-                newRegions.push_back(newRegion1);
-                newRegions.push_back(newRegion2);
-            } else {
-
-                Region newRegion1(region.startX, region.startY, region.endX, medianIndexY, 0);
-                Region newRegion2(region.startX, medianIndexY + 1, region.endX, region.endY, 0);
-
-                newRegion1.centroidIndex = findMedianIndex(splitVector(lum_data, newRegion1, _width));
-                newRegion2.centroidIndex = findMedianIndex(splitVector(lum_data, newRegion2, _width));
-
-                newRegions.push_back(newRegion1);
-                newRegions.push_back(newRegion2);
-            }
-            std::cout << "Width: " << _width << " Height: " << _height << std::endl;
-
-        }
-        regions = newRegions;
-    }
-
-    //prints
-    for (int i = 0; i < regions.size(); ++i) {
-        std::cout << regions[i].startX << " " << regions[i].startY << " " << regions[i].endX << " " << regions[i].endY << std::endl;
-        std::cout << regions[i].centroidIndex % _width << " " << regions[i].centroidIndex / _width << std::endl;
-    }
-
-//    auto end = std::chrono::high_resolution_clock::now();
-//    std::chrono::duration<double> elapsed = end - start;
-//    std::cout << "Time to take median cut: " << elapsed.count() << "s\n";
-//
+    create_lights(regions, lights, r_srt, g_srt, b_srt, _width, _height);
 }
 
 void MedianCut::OnKeyInput(int key, int action) {
     if (key == GLFW_KEY_E && action == GLFW_PRESS) {
         if(iterationCount > 1){
             iterationCount--;
+            calculate();
         }
     }
 
     if(key == GLFW_KEY_R && action == GLFW_PRESS){
         if(iterationCount < 7){
             iterationCount++;
+            calculate();
         }
     }
+
+//    std::cout << "iter:" << iterationCount << std::endl;
 }

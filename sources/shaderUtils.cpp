@@ -100,3 +100,9 @@ void Shader::SetInt(const std::string &name, const int value) const {
 void Shader::SetFloat(const std::string &name, const float value) const {
     glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 }
+
+void Shader::SetCubeMap(const std::string &name, const GLuint texture) const {
+    glUniform1i(glGetUniformLocation(ID, name.c_str()), 0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
+}
