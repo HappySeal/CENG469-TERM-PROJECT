@@ -8,7 +8,9 @@ struct Light {
 uniform Light lights[127]; // Array of lights
 uniform int numLights; // Number of active lights
 uniform vec3 cameraPos; // Camera position for specular calculation
-uniform float exposure; // Exposure value for tonemapping
+uniform float exposure;
+uniform mat4 skyboxMatrix;// Exposure value for tonemapping
+uniform bool enableSpecular;
 
 in vec3 currentPos; // Position of the fragment
 in vec3 Normal; // Normal at the fragment
@@ -36,15 +38,18 @@ void main() {
 
     for(int i = 0; i < numLights; i++) {
         // Diffuse shading
-        vec3 lightDir = normalize(lights[i].pos);
+        vec3 lightDir = vec3(skyboxMatrix * vec4(normalize(lights[i].pos),1.0f));
+
         float diff = max(dot(Normal, lightDir), 0.0);
-        diffuse += diff * tonemap(lights[i].color, 128000);
+        diffuse += diff * tonemap(lights[i].color, 128000 * numLights);
 
         // Specular shading
+        if(!enableSpecular) continue;
+
         vec3 viewDir = normalize(cameraPos - currentPos);
         vec3 reflectDir = reflect(-lightDir, norm);
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64.0f);
-        specular += spec * tonemap(lights[i].color, 1.0f) ;
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), 8);
+        specular += spec * tonemap(lights[i].color, 128000.0f * numLights);
     }
 
     vec3 result = (diffuse + specular);

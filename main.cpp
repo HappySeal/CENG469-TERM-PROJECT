@@ -27,6 +27,8 @@ enum RenderMode{
     SPECULARDISCO
 } renderMode = LIGHTPROBE;
 
+bool enableSpecular = false;
+
 
 
 int main(){
@@ -119,6 +121,8 @@ int main(){
                     lightProbeShader.SetVec3f("lights[" + std::to_string(i) + "].pos", &medianCut->lights[i].pos);
                     lightProbeShader.SetVec3f("lights[" + std::to_string(i) + "].color", &medianCut->lights[i].color);
                 }
+                lightProbeShader.SetInt("enableSpecular", enableSpecular);
+                lightProbeShader.SetMat4("skyboxMatrix", &skybox->skyboxModelMatrix);
                 camera->Matrix(lightProbeShader, "camMatrix");
                 //print
                 break;
@@ -166,6 +170,11 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 {
     skybox->OnKeyInput(key, action);
     medianCut->OnKeyInput(key, action);
+
+    if (key == GLFW_KEY_F && action == GLFW_PRESS) {
+        enableSpecular = !enableSpecular;
+        std::cout << "Specular: " << enableSpecular << std::endl;
+    }
 
     if(key == GLFW_KEY_1 && action == GLFW_PRESS){
         renderMode = LIGHTPROBE;
