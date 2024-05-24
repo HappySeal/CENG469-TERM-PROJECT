@@ -147,42 +147,52 @@ And that was it. Project was finished and I stared to test it in some different 
   <tr>
     <td align="center" width="50%">
       <img src="./images/image12.png" alt="Collage" width="100%">
-    </td>
+        Lightprobe Armadillo Beach   
+</td>
     <td align="center" width="50%">
       <img src="./images/image13.png" alt="Collage" width="100%">
-    </td>
+        Mirror Armadillo In The Beach 
+</td>
   </tr>
   <tr>
     <td align="center" width="50%">
       <img src="./images/image14.png" alt="Collage" width="100%">
-    </td>
+    Glass Armadillo In The Beach
+</td>
     <td align="center" width="50%">
       <img src="./images/image15.png" alt="Collage" width="100%">
-    </td>
+        Glossy Armadillo In The Beach 
+</td>
   </tr>
   <tr>
     <td align="center" width="50%">
       <img src="./images/image16.png" alt="Collage" width="100%">
-    </td>
+    Another Glossy Armadillo In The Beach 
+</td>
     <td align="center" width="50%">
       <img src="./images/image17.png" alt="Collage" width="100%">
-    </td>
+    Lightprobe Teapot in Snowstreet  
+</td>
   </tr>
   <tr>
     <td align="center" width="50%">
       <img src="./images/image18.png" alt="Collage" width="100%">
-    </td>
+    Mirror Teapot in Snowstreet    
+</td>
     <td align="center" width="50%">
       <img src="./images/image19.png" alt="Collage" width="100%">
-    </td>
+    Glass Teapot in Snowstreet    
+</td>
   </tr>
   <tr>
     <td align="center" width="50%">
       <img src="./images/image20.png" alt="Collage" width="100%">
-    </td>
+    Glossy Teapot in Snowstreet    
+</td>
     <td align="center" width="50%">
       <img src="./images/image21.png" alt="Collage" width="100%">
-    </td>
+    Mirro cube in Test Room    
+</td>
   </tr>
 </table>
 
@@ -246,13 +256,16 @@ I also did some refraction tests. I tested the refraction of different materials
   <tr>
     <td align="center" width="33%">
       <img src="./images/image23.png" alt="Collage" width="100%">
-    </td>
+        Diamond     
+</td>
     <td align="center" width="33%">
       <img src="./images/image22.png" alt="Collage" width="100%">
-    </td>
+    Water    
+</td>
     <td align="center" width="33%">
       <img src="./images/image10.png" alt="Collage" width="100%">
-    </td>
+    Glass    
+</td>
   </tr>
 </table>
 
