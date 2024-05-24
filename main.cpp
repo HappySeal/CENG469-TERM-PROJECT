@@ -60,11 +60,11 @@ int main(){
     skybox->width = WIDTH;
     skybox->height = HEIGHT;
     // Shader
-    Shader mirrorShader("./resources/Shaders/vert.glsl", "./resources/Shaders/mirrorfrag.glsl");
-    Shader lightProbeShader("./resources/Shaders/vert.glsl", "./resources/Shaders/lightprobefrag.glsl");
-    Shader glassShader("./resources/Shaders/vert.glsl", "./resources/Shaders/glass.frag");
-    Shader glossyShader("./resources/Shaders/vert.glsl", "./resources/Shaders/glossy.frag");
-    Shader specularDiscoShader("./resources/Shaders/vert.glsl", "./resources/Shaders/disco.frag");
+    Shader mirrorShader("./resources/shaders/vert.glsl", "./resources/shaders/mirrorfrag.glsl");
+    Shader lightProbeShader("./resources/shaders/vert.glsl", "./resources/shaders/lightprobefrag.glsl");
+    Shader glassShader("./resources/shaders/vert.glsl", "./resources/shaders/glass.frag");
+    Shader glossyShader("./resources/shaders/vert.glsl", "./resources/shaders/glossy.frag");
+    Shader specularDiscoShader("./resources/shaders/vert.glsl", "./resources/shaders/disco.frag");
 
 
     Model model = Model("./resources/Models/sphere.obj", glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f), glm::vec4(1.0f, 1.0f, 0.2f, 1.0f));

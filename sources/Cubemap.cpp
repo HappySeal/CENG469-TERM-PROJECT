@@ -13,11 +13,11 @@
 Cubemap::Cubemap(const std::string& texturePath, glm::mat4 &projection) {
     int skyboxRes = 2048;
 
-    model = new Model("./resources/Models/cube.obj", glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f), glm::vec4(1.0f));
+    model = new Model("./resources/models/cube.obj", glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f), glm::vec4(1.0f));
 
-    skybox = new Shader("./resources/Shaders/skybox.vert", "./resources/Shaders/skybox.frag");
-    equirectangularToCubemap = new Shader("./resources/Shaders/eqrt2cm.vert", "./resources/Shaders/eqrt2cm.frag");
-    irradianceShader = new Shader("./resources/Shaders/eqrt2cm.vert", "./resources/shaders/irradiance.frag");
+    skybox = new Shader("./resources/shaders/skybox.vert", "./resources/shaders/skybox.frag");
+    equirectangularToCubemap = new Shader("./resources/shaders/eqrt2cm.vert", "./resources/shaders/eqrt2cm.frag");
+    irradianceShader = new Shader("./resources/shaders/eqrt2cm.vert", "./resources/shaders/irradiance.frag");
     skyboxModelMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
 
     exposure = 0.18f;

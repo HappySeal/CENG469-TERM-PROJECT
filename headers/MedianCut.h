@@ -5,6 +5,7 @@
 #ifndef SAMPLEGL_MEDIANCUT_H
 #define SAMPLEGL_MEDIANCUT_H
 
+#include <vector>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
