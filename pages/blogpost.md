@@ -44,10 +44,11 @@ When I started this project, I was very frustrated about HW1. Because I did litt
 
 Here there are some beginning screenshots of the project:
 
-![Beginning](./images/image1.png)
+<img alt="Beginning" height="75%" src="./images/image1.png" width="75%"/>
+
 Here in the first picture I first implemented a simple pyramid
 
-![Beginning](./images/image2.png)
+<img alt="Beginning" height="75%" src="./images/image2.png" width="75%"/>
 
 Here I also implemented some really crude lighting system
 
