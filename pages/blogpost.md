@@ -37,3 +37,12 @@ During the implementation, I ran into several issues that required some creative
 Another tricky part was figuring out the light color of a region. The project guide and the paper were both pretty vague on this. My first idea was to sum all the pixels in a region and multiply each by its pixel inclination. This made the lights way too bright. Since I couldn’t find a better solution, I ended up adjusting their brightness arbitrarily. While this made my results a bit different from the demo video, the overall effect was still there.
 
 The position of the light was also a big question mark for me. Creating a 3D light source from a 2D skymap was confusing, especially figuring out the distance of the light from the origin. Thankfully, after asking on the forum, our awesome TA explained that the light source should be directional, not a point light. This was a game-changer and helped me finish the light probe shader.
+
+### Journeys beginning...
+
+When I started this project, I was very frustrated about HW1. Because I did little to zero progress in that homework I was very hesitant about this one too. Because of this, in order to have a clean start, I decided to start from scratch. I deleted all the files and started to implement the project from the beginning. This was a good decision because I was able to understand the project better and implement it more efficiently. I learned the OpenGL from the ground up and learned the basics again. This was a good refresher for me.
+
+Here there are some beginning screenshots of the project:
+
+![Beginning](./images/beginning.png)
+
