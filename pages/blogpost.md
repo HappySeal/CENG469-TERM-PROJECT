@@ -50,7 +50,13 @@ Here in the first picture I first implemented a simple pyramid
 
 <img alt="Beginning" height="75%" src="./images/image2.png" width="75%"/>
 
-Here I also implemented some really crude lighting system
+Here I also implemented some really crude lighting system. This might seem like nothing related to the homework, but in order to create something great sometimes you need to start from the basics.
+
+### Journeys middle...
+
+After implementing camera controls and some more basics shading utilities with better model loading I started to implement the main part of the project. I first implemented the LightProbe mode. This was the most challenging part of the project. I had to implement the median cut algorithm and the light probe sampling. I had to read the HDR image and create the cubemap textures. I had to implement the shader for the light probe. This was a very challenging part of the project. I had to read the paper multiple times and understand the algorithm. I had to implement the algorithm and debug it. I had to implement the shader and debug it. I had to implement the cubemap textures and debug them. This was a very challenging part of the project. But after a lot of debugging and testing, I was able to implement the LightProbe mode.
+
+
 
 ### Journeys end...
 
