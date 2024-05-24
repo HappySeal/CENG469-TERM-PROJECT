@@ -188,6 +188,81 @@ And that was it. Project was finished and I stared to test it in some different 
 
 </div>
 
+### Performance Tests about Skybox
+
+I also did some performance tests about the skybox. I tested the skybox with different resolutions. Here are the results of the performance tests:
+
+First I started adjusting the resolution of the skybox to 512x512, 2048x2048 and 4096x4096. Here are the results of the performance tests:
+
+<table>
+<tr>
+    <th>Resolution (px * px)</th>
+    <th>Time (ms/frame)</th>
+  </tr>
+  <tr>
+    <td>512x512</td>
+    <td>8.33</td>
+  </tr>
+
+  <tr>
+    <td>2048x2048</td>
+    <td>8.33</td>
+  </tr>
+
+  <tr>
+    <td>4096x4096</td>
+    <td>8.33</td>
+  </tr>
+</table>
+
+This was a very interesting result. The resolution of the skybox didn't affect the performance of the project. This was a very interesting result. I was expecting the performance to decrease as the resolution of the skybox increased. However, this was not the case. Then I realized that the OpenGL was capping the framerate by vsync. I need to add `glfwSwapInterval(0);` to set bufferswap interval to immediately to see the real performance. I disabled the vsync and tested the project again. Here are the results of the performance tests:
+
+<table>
+<tr>
+    <th>Resolution (px * px)</th>
+    <th>Time (ms/frame)</th>
+  </tr>
+  <tr>
+    <td>512x512</td>
+    <td>0.83</td>
+  </tr>
+
+  <tr>
+    <td>2048x2048</td>
+    <td>1.83</td>
+  </tr>
+
+  <tr>
+    <td>4096x4096</td>
+    <td>4.15</td>
+  </tr>
+</table>
+
+As you can see as the resolution of the skybox increased, the performance of the projects was declining. However as the resolution going down skybox was being more and more ugly... Therefore I decided to use 2048x2048 resolution for the skybox. Also increasing the skybox resolution was also limited by the resolution of the hdr image we are providing. Anythin bigger than the hdr image was not making any sense.
+
+### Refraction Tests
+
+I also did some refraction tests. I tested the refraction of different materials like water, glass and diamond. Here are the results of the refraction tests:
+
+<div style="display: flex; flex-wrap: wrap;">
+
+  <div style="flex: 33%; box-sizing: border-box; padding: 5px;">
+    <img src="./images/image23.png" alt="Collage" style="width: 100%;"/>
+  </div>
+
+  <div style="flex: 33%; box-sizing: border-box; padding: 5px;">
+    <img src="./images/image22.png" alt="Collage" style="width: 100%;"/>
+  </div>
+
+  <div style="flex: 33%; box-sizing: border-box; padding: 5px;">
+    <img src="./images/image10.png" alt="Collage" style="width: 100%;"/>
+  </div>
+</div>
+
+As you can see in the images above (from left to right), the refraction of the diamond, glass and water. As the refractive index is going up, material was almost acting like a invisble object that just flips the image. This was an expected result, since according to the snell's law, the refractive index of the material is directly proportional to the refraction angle.
 
 ### Journeys end...
 
+In the end, I was able to implement the project successfully. I was able to implement the skybox, median cut algorithm, light probe algorithm, glass, glossy and mirror modes
+
+This project was a great learning experience for me. I learned a lot about OpenGL, environment mapping, HDR tone mapping, reflectance, and refraction. I also learned a lot about debugging and problem-solving. I faced several challenges during the implementation, but I was able to overcome them through perseverance and creativity. I also learned the importance of asking for help and seeking guidance when stuck.
