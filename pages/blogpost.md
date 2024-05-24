@@ -46,12 +46,12 @@ Here there are some beginning screenshots of the project:
 
 <p align="center">
 <img alt="Beginning" height="75%" src="./images/image1.png" width="75%"/>
-</div>
+</p>
 Here in the first picture I first implemented a simple pyramid
 <p align="center">
 
 <img alt="Beginning" height="75%" src="./images/image2.png" width="75%"/>
-</div>
+</p>
 Here I also implemented some really crude lighting system. This might seem like nothing related to the homework, but in order to create something great sometimes you need to start from the basics.
 
 ### Journeys middle...
@@ -143,50 +143,48 @@ Here is also the final version of the light probe mode
 </p>
 
 And that was it. Project was finished and I stared to test it in some different environments. Here is a collage of the project in different environments:
-
-<div style="display: flex; flex-wrap: wrap;">
-
-  <div style="flex: 50%; box-sizing: border-box; padding: 5px;">
-    <img src="./images/image12.png" alt="Collage" style="width: 100%;"/>
-  </div>
-
-  <div style="flex: 50%; box-sizing: border-box; padding: 5px;">
-    <img src="./images/image13.png" alt="Collage" style="width: 100%;"/>
-  </div>
-
-  <div style="flex: 50%; box-sizing: border-box; padding: 5px;">
-    <img src="./images/image14.png" alt="Collage" style="width: 100%;"/>
-  </div>
-
-  <div style="flex: 50%; box-sizing: border-box; padding: 5px;">
-    <img src="./images/image15.png" alt="Collage" style="width: 100%;"/>
-  </div>
-
-  <div style="flex: 50%; box-sizing: border-box; padding: 5px;">
-    <img src="./images/image16.png" alt="Collage" style="width: 100%;"/>
-  </div>
-
-  <div style="flex: 50%; box-sizing: border-box; padding: 5px;">
-    <img src="./images/image17.png" alt="Collage" style="width: 100%;"/>
-  </div>
-
-  <div style="flex: 50%; box-sizing: border-box; padding: 5px;">
-    <img src="./images/image18.png" alt="Collage" style="width: 100%;"/>
-  </div>
-
-  <div style="flex: 50%; box-sizing: border-box; padding: 5px;">
-    <img src="./images/image19.png" alt="Collage" style="width: 100%;"/>
-  </div>
-
-  <div style="flex: 50%; box-sizing: border-box; padding: 5px;">
-    <img src="./images/image20.png" alt="Collage" style="width: 100%;"/>
-  </div>
-
-  <div style="flex: 50%; box-sizing: border-box; padding: 5px;">
-    <img src="./images/image21.png" alt="Collage" style="width: 100%;"/>
-  </div>
-
-</div>
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="./images/image12.png" alt="Collage" width="100%">
+    </td>
+    <td align="center" width="50%">
+      <img src="./images/image13.png" alt="Collage" width="100%">
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src="./images/image14.png" alt="Collage" width="100%">
+    </td>
+    <td align="center" width="50%">
+      <img src="./images/image15.png" alt="Collage" width="100%">
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src="./images/image16.png" alt="Collage" width="100%">
+    </td>
+    <td align="center" width="50%">
+      <img src="./images/image17.png" alt="Collage" width="100%">
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src="./images/image18.png" alt="Collage" width="100%">
+    </td>
+    <td align="center" width="50%">
+      <img src="./images/image19.png" alt="Collage" width="100%">
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src="./images/image20.png" alt="Collage" width="100%">
+    </td>
+    <td align="center" width="50%">
+      <img src="./images/image21.png" alt="Collage" width="100%">
+    </td>
+  </tr>
+</table>
 
 ### Performance Tests about Skybox
 
@@ -244,20 +242,20 @@ As you can see as the resolution of the skybox increased, the performance of the
 
 I also did some refraction tests. I tested the refraction of different materials like water, glass and diamond. Here are the results of the refraction tests:
 
-<div style="display: flex; flex-wrap: wrap;">
+<table>
+  <tr>
+    <td align="center" width="33%">
+      <img src="./images/image23.png" alt="Collage" width="100%">
+    </td>
+    <td align="center" width="33%">
+      <img src="./images/image22.png" alt="Collage" width="100%">
+    </td>
+    <td align="center" width="33%">
+      <img src="./images/image10.png" alt="Collage" width="100%">
+    </td>
+  </tr>
+</table>
 
-  <div style="flex: 33%; box-sizing: border-box; padding: 5px;">
-    <img src="./images/image23.png" alt="Collage" style="width: 100%;"/>
-  </div>
-
-  <div style="flex: 33%; box-sizing: border-box; padding: 5px;">
-    <img src="./images/image22.png" alt="Collage" style="width: 100%;"/>
-  </div>
-
-  <div style="flex: 33%; box-sizing: border-box; padding: 5px;">
-    <img src="./images/image10.png" alt="Collage" style="width: 100%;"/>
-  </div>
-</div>
 
 As you can see in the images above (from left to right), the refraction of the diamond, glass and water. As the refractive index is going up, material was almost acting like a invisble object that just flips the image. This was an expected result, since according to the snell's law, the refractive index of the material is directly proportional to the refraction angle.
 
