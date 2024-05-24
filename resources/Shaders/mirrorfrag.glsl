@@ -23,21 +23,11 @@ vec3 tonemap(vec3 hdrColor) {
 
 
 void main(){
-   float ambient = 0.2f;
 
    vec3 mnormal = normalize(Normal);
-//   vec3 lightDir = normalize(lightPos - currentPos);
+
    vec3 I = normalize(currentPos - cameraPos);
    vec3 R = reflect(I, mnormal);
-
-//   float diff = max(dot(mnormal, lightDir), 0.0);
-//
-//   float specularStrength = 0.5;
-//   vec3 viewDir = normalize(cameraPos - currentPos);
-//   vec3 reflectDir = reflect(-lightDir, mnormal);
-//   float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-//
-//   float specular = specularStrength * spec;
 
    vec3 transformedR = vec3(inverse(skyboxMatrix) * vec4(R, 0.0));
 

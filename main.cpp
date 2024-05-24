@@ -62,6 +62,10 @@ int main(){
     // Shader
     Shader mirrorShader("./resources/Shaders/vert.glsl", "./resources/Shaders/mirrorfrag.glsl");
     Shader lightProbeShader("./resources/Shaders/vert.glsl", "./resources/Shaders/lightprobefrag.glsl");
+    Shader glassShader("./resources/Shaders/vert.glsl", "./resources/Shaders/glass.frag");
+    Shader glossyShader("./resources/Shaders/vert.glsl", "./resources/Shaders/glossy.frag");
+    Shader specularDiscoShader("./resources/Shaders/vert.glsl", "./resources/Shaders/disco.frag");
+
 
     Model model = Model("./resources/Models/sphere.obj", glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f), glm::vec4(1.0f, 1.0f, 0.2f, 1.0f));
 
@@ -77,6 +81,14 @@ int main(){
     lightProbeShader.Activate();
     lightProbeShader.SetMat4("model", &modelMatrix);
 
+    glossyShader.Activate();
+    glossyShader.SetMat4("model", &modelMatrix);
+
+    specularDiscoShader.Activate();
+    specularDiscoShader.SetMat4("model", &modelMatrix);
+
+    glassShader.Activate();
+    glassShader.SetMat4("model", &modelMatrix);
 
 //    skybox->Bind();
 //    skybox->skybox->SetMat4("projection", &camera->projectionMatrix);
@@ -134,10 +146,42 @@ int main(){
                 camera->Matrix(mirrorShader, "camMatrix");
                 break;
             case GLASS:
+                glassShader.Activate();
+                glassShader.SetVec3f("cameraPos", &camera->Position);
+                glassShader.SetFloat("exposure", skybox->exposure);
+                glassShader.SetMat4("skyboxMatrix", &skybox->skyboxModelMatrix);
+                camera->Matrix(glassShader, "camMatrix");
                 break;
             case GLOSSY:
+                glossyShader.Activate();
+                glossyShader.SetInt("environmentMap", 0);
+                glossyShader.SetInt("numLights", medianCut->numberOfLights);
+                glossyShader.SetFloat("exposure", skybox->exposure);
+                glossyShader.SetVec3f("cameraPos", &camera->Position);
+                for (int i = 0; i < medianCut->lights.size(); ++i) {
+                    glossyShader.SetVec3f("lights[" + std::to_string(i) + "].pos", &medianCut->lights[i].pos);
+                    glossyShader.SetVec3f("lights[" + std::to_string(i) + "].color", &medianCut->lights[i].color);
+                }
+                glossyShader.SetInt("enableSpecular", enableSpecular);
+
+                glossyShader.SetVec3f("cameraPos", &camera->Position);
+                glossyShader.SetFloat("exposure", skybox->exposure);
+                glossyShader.SetMat4("skyboxMatrix", &skybox->skyboxModelMatrix);
+                camera->Matrix(glossyShader, "camMatrix");
                 break;
             case SPECULARDISCO:
+                specularDiscoShader.Activate();
+                specularDiscoShader.SetInt("environmentMap", 0);
+                specularDiscoShader.SetInt("numLights", medianCut->numberOfLights);
+                specularDiscoShader.SetFloat("exposure", skybox->exposure);
+                specularDiscoShader.SetVec3f("cameraPos", &camera->Position);
+                for (int i = 0; i < medianCut->lights.size(); ++i) {
+                    specularDiscoShader.SetVec3f("lights[" + std::to_string(i) + "].pos", &medianCut->lights[i].pos);
+                    specularDiscoShader.SetVec3f("lights[" + std::to_string(i) + "].color", &medianCut->lights[i].color);
+                }
+                specularDiscoShader.SetInt("enableSpecular", enableSpecular);
+                specularDiscoShader.SetMat4("skyboxMatrix", &skybox->skyboxModelMatrix);
+                camera->Matrix(specularDiscoShader, "camMatrix");
                 break;
         }
 
