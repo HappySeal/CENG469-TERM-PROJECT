@@ -16,6 +16,7 @@ std::string get_file_content(const std::string& filePath){
 }
 
 Shader::Shader(const std::string& vertexShaderPath, const std::string& fragmentShaderPath){
+    std::cout << "Loading shader: " << vertexShaderPath << " " << fragmentShaderPath << std::endl;
     std::string vertexShaderSource = get_file_content(vertexShaderPath);
     std::string fragmentShaderSource = get_file_content(fragmentShaderPath);
 
@@ -23,6 +24,7 @@ Shader::Shader(const std::string& vertexShaderPath, const std::string& fragmentS
     const GLchar* fragmentShaderSourceC = (GLchar *) fragmentShaderSource.c_str();
 
     ID = glCreateProgram();
+
     // Create Vertex Shader
     std::cout << "Compiling vertex shader" << vertexShaderPath <<std::endl;
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -91,6 +93,10 @@ void Shader::SetVec4f(const std::string &name, const glm::vec4 *vec) const {
 
 void Shader::SetVec3f(const std::string &name, const glm::vec3 *vec) const {
     glUniform3f(glGetUniformLocation(ID, name.c_str()), vec->x, vec->y, vec->z);
+}
+
+void Shader::SetVec2f(const std::string &name, const glm::vec2 *vec) const {
+    glUniform2f(glGetUniformLocation(ID, name.c_str()), vec->x, vec->y);
 }
 
 void Shader::SetInt(const std::string &name, const int value) const {

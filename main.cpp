@@ -4,47 +4,79 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "headers/shaderUtils.h"
-#include "headers/Camera.h"
-#include "headers/Model.h"
-#include "headers/Cubemap.h"
-#include "headers/MedianCut.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "headers/stb_image.h"
 
-#define WIDTH 800
-#define HEIGHT 600
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+#include "headers/shaderUtils.h"
+
+// Shader loading utility programs (not shown here for brevity)
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
-Camera* camera;
-Cubemap* skybox;
-MedianCut* medianCut;
+GLuint loadTexture(const std::string& path) {
+    GLuint texture = 0;
 
-enum RenderMode{
-    LIGHTPROBE,
-    MIRROR,
-    GLASS,
-    GLOSSY,
-    SPECULARDISCO
-} renderMode = LIGHTPROBE;
+//    GLuint texture;
+//    std::cout << "BRO YOU ARE NOT EVEN COMING HERE";
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+//    // Set texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+//    // Set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//    // Load image, create texture and generate mipmaps
+    int width, height, nrChannels;
+    unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+//    if (data) {
+//        GLenum format;
+//        if (nrChannels == 1)
+//            format = GL_RED;
+//        else if (nrChannels == 3)
+//            format = GL_RGB;
+//        else if (nrChannels == 4)
+//            format = GL_RGBA;
+//        else{
+//            std::cerr << "Failed to load texture: " << path << std::endl;
+//            exit(-1);
+//        }
+////
+//        try {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_FLOAT, data);
+//            glGenerateMipmap(GL_TEXTURE_2D);
+//        } catch (const std::exception& e) {
+//            std::cerr << "Failed to load texture: " << path << std::endl;
+//            exit(-1);
+//        }
+//    } else {
+//        std::cerr << "Failed to load texture: " << path << std::endl;
+//    }
+//    stbi_image_free(data);
+    return texture;
+}
 
-bool enableSpecular = false;
-
-
-
-int main(){
-    glfwInit();
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // Notating we are using OpenGL 3.x
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3); // Notating we are using OpenGL 3.3
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Notating we are using OpenGL Core Profile
-
-    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "LearnOpenGL", NULL, NULL);
-    if(window == NULL){
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
+int main() {
+    // Initialize GLFW
+    if (!glfwInit()) {
+        std::cerr << "Failed to initialize GLFW\n";
         return -1;
     }
 
+    std::cout << "Initialized GLFW\n" << std::endl;
+
+    // Set up OpenGL context
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    // Create window
+    GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL Wormhole", nullptr, nullptr);
+    if (!window) {
+        std::cerr << "Failed to create GLFW window\n";
+        glfwTerminate();
+        return -1;
+    }
     glfwMakeContextCurrent(window);
 
     glewInit();
@@ -52,199 +84,164 @@ int main(){
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
 
-    camera = new Camera(WIDTH, HEIGHT, glm::vec3(0.0f, 0.0f, 3.0f), 90.0f, 0.1f, 100.0f);
-    skybox = new Cubemap("./resources/hdr/Thumersbach.hdr", camera->projectionMatrix);
-    medianCut = new MedianCut("./resources/hdr/Thumersbach.hdr");
-    medianCut->calculate();
 
-    skybox->width = WIDTH;
-    skybox->height = HEIGHT;
-    // Shader
-    Shader mirrorShader("./resources/shaders/vert.glsl", "./resources/shaders/mirrorfrag.glsl");
-    Shader lightProbeShader("./resources/shaders/vert.glsl", "./resources/shaders/lightprobefrag.glsl");
-    Shader glassShader("./resources/shaders/vert.glsl", "./resources/shaders/glass.frag");
-    Shader glossyShader("./resources/shaders/vert.glsl", "./resources/shaders/glossy.frag");
-    Shader specularDiscoShader("./resources/shaders/vert.glsl", "./resources/shaders/disco.frag");
+    std::cout << "Created GLFW window\n" << std::endl;
 
+    // Load shaders
+    Shader wormhole("./resources/shaders/default.vert", "./resources/shaders/default.frag");
 
-    Model model = Model("./resources/Models/sphere.obj", glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f), glm::vec4(1.0f, 1.0f, 0.2f, 1.0f));
+    // Set up vertex data and buffers and configure vertex attributes
+    float vertices[] = {
+            // positions          // texture coords
+            -1.0f,  1.0f, 0.0f,  0.0f, 1.0f,
+            -1.0f, -1.0f, 0.0f,  0.0f, 0.0f,
+            1.0f, -1.0f, 0.0f,  1.0f, 0.0f,
+            1.0f,  1.0f, 0.0f,  1.0f, 1.0f
+    };
+    unsigned int indices[] = {
+            0, 1, 2,
+            2, 3, 0
+    };
 
-
-
-
-    glm::mat4 modelMatrix = model.ModelingMatrix();
-
-    mirrorShader.Activate();
-    mirrorShader.SetMat4("model", &modelMatrix);
-    mirrorShader.SetVec4f("color", model.color.toVec4f());
-
-    lightProbeShader.Activate();
-    lightProbeShader.SetMat4("model", &modelMatrix);
-
-    glossyShader.Activate();
-    glossyShader.SetMat4("model", &modelMatrix);
-
-    specularDiscoShader.Activate();
-    specularDiscoShader.SetMat4("model", &modelMatrix);
-
-    glassShader.Activate();
-    glassShader.SetMat4("model", &modelMatrix);
-
-//    skybox->Bind();
-//    skybox->skybox->SetMat4("projection", &camera->projectionMatrix);
+    std::cout << "Loaded shaders\n" << std::endl;
 
     assert(glGetError() == GL_NO_ERROR);
 
-    // Enable depth testing
+    GLuint VBO, VAO, EBO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
 
-    int scrWidth, scrHeight;
-    glfwGetFramebufferSize(window, &scrWidth, &scrHeight);
-    glViewport(0, 0, scrWidth, scrHeight);
+    glBindVertexArray(VAO);
 
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSetKeyCallback(window, key_callback);
-//
-//    std::cout << "Light count " << (int)(medianCut->lightPointsByIter[medianCut->iterationCount]).size() << std::endl;
-//    for (int i = 0; i < medianCut->lightPointsByIter[medianCut->iterationCount].size(); ++i) {
-//        std::cout << "Light point " << i << ": " << medianCut->lightPointsByIter[medianCut->iterationCount][i].pos.x << " " << medianCut->lightPointsByIter[medianCut->iterationCount][i].pos.y << " " << medianCut->lightPointsByIter[medianCut->iterationCount][i].pos.z << " " << medianCut->lightPointsByIter[medianCut->iterationCount][i].color.r << " " << medianCut->lightPointsByIter[medianCut->iterationCount][i].color.g << " " << medianCut->lightPointsByIter[medianCut->iterationCount][i].color.b << std::endl;
+    std::cout << "Generated VAO, VBO, EBO\n" << std::endl;
+
+    assert(glGetError() == GL_NO_ERROR);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    std::cout << "Bound VBO\n" << std::endl;
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    std::cout << "Bound EBO\n" << std::endl;
+
+    // Position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    std::cout << "Enabled vertex attribute\n" << std::endl;
+
+    // Texture coord attribute
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    std::cout << "Enabled texture attribute\n" << std::endl;
+
+    assert(glGetError() == GL_NO_ERROR);
+
+    // Load and create textures
+    GLuint texture1;
+    GLuint texture2;
+    std::cout << "Loading textures\n" << std::endl;
+    int width, height, nrChannels;
+    unsigned char* data = stbi_load("resources/textures/sky1.jpg", &width, &height, &nrChannels, 0);
+
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+    glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+    glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+
+    glGenTextures(1, &texture1);
+    glBindTexture(GL_TEXTURE_2D, texture1);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+//    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 //    }
 
+    unsigned char* data2 = stbi_load("resources/textures/sky2.png", &width, &height, &nrChannels, 0);
 
-    while (!glfwWindowShouldClose(window)){
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glGenTextures(1, &texture2);
+    glBindTexture(GL_TEXTURE_2D, texture2);
 
-        // Clear the color buffer and depth buffer
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-        camera->updateMatrix();
-        camera->HandleControl(window);
-        skybox->HandleControl(window);
-
-        skybox->BindIrradiance();
-
-        switch (renderMode) {
-            case LIGHTPROBE:
-                lightProbeShader.Activate();
-                lightProbeShader.SetInt("environmentMap", 0);
-                lightProbeShader.SetInt("numLights", medianCut->numberOfLights);
-                lightProbeShader.SetFloat("exposure", skybox->exposure);
-                lightProbeShader.SetVec3f("cameraPos", &camera->Position);
-                for (int i = 0; i < medianCut->lights.size(); ++i) {
-                    lightProbeShader.SetVec3f("lights[" + std::to_string(i) + "].pos", &medianCut->lights[i].pos);
-                    lightProbeShader.SetVec3f("lights[" + std::to_string(i) + "].color", &medianCut->lights[i].color);
-                }
-                lightProbeShader.SetInt("enableSpecular", enableSpecular);
-                lightProbeShader.SetMat4("skyboxMatrix", &skybox->skyboxModelMatrix);
-                camera->Matrix(lightProbeShader, "camMatrix");
-                //print
-                break;
-            case MIRROR:
-                mirrorShader.Activate();
-                mirrorShader.SetVec3f("cameraPos", &camera->Position);
-                mirrorShader.SetFloat("exposure", skybox->exposure);
-                mirrorShader.SetMat4("skyboxMatrix", &skybox->skyboxModelMatrix);
-                camera->Matrix(mirrorShader, "camMatrix");
-                break;
-            case GLASS:
-                glassShader.Activate();
-                glassShader.SetVec3f("cameraPos", &camera->Position);
-                glassShader.SetFloat("exposure", skybox->exposure);
-                glassShader.SetMat4("skyboxMatrix", &skybox->skyboxModelMatrix);
-                camera->Matrix(glassShader, "camMatrix");
-                break;
-            case GLOSSY:
-                glossyShader.Activate();
-                glossyShader.SetInt("environmentMap", 0);
-                glossyShader.SetInt("numLights", medianCut->numberOfLights);
-                glossyShader.SetFloat("exposure", skybox->exposure);
-                glossyShader.SetVec3f("cameraPos", &camera->Position);
-                for (int i = 0; i < medianCut->lights.size(); ++i) {
-                    glossyShader.SetVec3f("lights[" + std::to_string(i) + "].pos", &medianCut->lights[i].pos);
-                    glossyShader.SetVec3f("lights[" + std::to_string(i) + "].color", &medianCut->lights[i].color);
-                }
-                glossyShader.SetInt("enableSpecular", enableSpecular);
-
-                glossyShader.SetVec3f("cameraPos", &camera->Position);
-                glossyShader.SetFloat("exposure", skybox->exposure);
-                glossyShader.SetMat4("skyboxMatrix", &skybox->skyboxModelMatrix);
-                camera->Matrix(glossyShader, "camMatrix");
-                break;
-            case SPECULARDISCO:
-                specularDiscoShader.Activate();
-                specularDiscoShader.SetInt("environmentMap", 0);
-                specularDiscoShader.SetInt("numLights", medianCut->numberOfLights);
-                specularDiscoShader.SetFloat("exposure", skybox->exposure);
-                specularDiscoShader.SetVec3f("cameraPos", &camera->Position);
-                for (int i = 0; i < medianCut->lights.size(); ++i) {
-                    specularDiscoShader.SetVec3f("lights[" + std::to_string(i) + "].pos", &medianCut->lights[i].pos);
-                    specularDiscoShader.SetVec3f("lights[" + std::to_string(i) + "].color", &medianCut->lights[i].color);
-                }
-                specularDiscoShader.SetInt("enableSpecular", enableSpecular);
-                specularDiscoShader.SetMat4("skyboxMatrix", &skybox->skyboxModelMatrix);
-                camera->Matrix(specularDiscoShader, "camMatrix");
-                break;
-        }
-
-        model.bindMesh();
-        skybox->Bind();
-        model.drawMesh();
-
-        skybox->Draw(camera->viewMatrix);
-        assert(glGetError() == GL_NO_ERROR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+    glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+    glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+
+
+//    if (data) {
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data2);
+//    }
+
+    std::cout << "Textures loaded\n" << std::endl;
+
+    // Bind textures and set texture parameters here (omitted for brevity)
+    wormhole.Activate();
+
+    assert(glGetError() == GL_NO_ERROR);
+
+    glfwSetKeyCallback(window, key_callback);
+
+    // Main render loop
+    while (!glfwWindowShouldClose(window)) {
+        // Input handling
+
+        // Render
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // Bind textures
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture1);
+
+        wormhole.SetInt("texture1", 0);
+
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2);
+        wormhole.SetInt("texture2", 1);
+
+        // Set uniforms
+        wormhole.SetFloat("iTime", (float)glfwGetTime());
+        wormhole.SetVec2f("iResolution", new glm::vec2(800.0f, 600.0f));
+
+
+        // Render quad
+        glBindVertexArray(VAO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        // Swap buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
+    // Clean up
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
 
-    mirrorShader.Delete();
-
-    glfwDestroyWindow(window);
     glfwTerminate();
     return 0;
 }
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
-}
-
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    skybox->OnKeyInput(key, action);
-    medianCut->OnKeyInput(key, action);
-
-    if (key == GLFW_KEY_F && action == GLFW_PRESS) {
-        enableSpecular = !enableSpecular;
-        std::cout << "Specular: " << enableSpecular << std::endl;
-    }
-
-    if(key == GLFW_KEY_1 && action == GLFW_PRESS){
-        renderMode = LIGHTPROBE;
-        std::cout << "Light Probe" << std::endl;
-    }
-
-    if(key == GLFW_KEY_2 && action == GLFW_PRESS){
-        renderMode = MIRROR;
-        std::cout << "Mirror" << std::endl;
-    }
-
-    if(key == GLFW_KEY_3 && action == GLFW_PRESS){
-        renderMode = GLASS;
-        std::cout << "Glass" << std::endl;
-    }
-
-    if(key == GLFW_KEY_4 && action == GLFW_PRESS){
-        renderMode = GLOSSY;
-        std::cout << "Glossy" << std::endl;
-    }
-
-    if(key == GLFW_KEY_5 && action == GLFW_PRESS){
-        renderMode = SPECULARDISCO;
-        std::cout << "Specular Disco" << std::endl;
-    }
-
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
+

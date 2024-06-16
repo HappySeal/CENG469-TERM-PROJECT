@@ -5,7 +5,6 @@
 #include "../headers/Cubemap.h"
 
 #ifndef STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
 #include "../headers/stb_image.h"
 #endif
 
