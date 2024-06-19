@@ -15,6 +15,9 @@ In this section, we focused on converting an equilateral image into a cubemap to
 
 Here rather than caculating each 6 faces of the cube one by one, we do the calculations on the shader. In our implementation, camera never moves. The rays from the camera follows a path calculated by the wormhole function. Ray tracing is utilized to obtain the pixel value from the other universe. Moreover, in each draw call, a recalculation with ray tracing is necessary since the camera moves between the two universes. Hence, we obtain the corresponding cubemap value using ray tracing and wormhole function in the shaders.
 
+<img src="images/ray1.png">
+
+
 ## Shader Implementation of the Wormhole
 The core of our project lies in the shader implementation. The fragment shader is responsible for rendering the wormhole effect by manipulating texture coordinates and applying complex mathematical transformations.
 
@@ -30,7 +33,52 @@ As indicated in the paper, to catch a realistic wormhole effect, there should be
 
 <img src="images/wormhole3.png"> 
 
+```cpp
+// wormhole function r(l)
+float LtoR(float l) {
+    float x = max(0.0, 2.0 * (abs(l) - a) / PI / M);
+    return 1.0 + M * (x * atan(x) - 0.5 * log(1.0 + x * x));
+}
+```
+
+```cpp
+// wormhole derivative
+float LtoDR(float l) {
+    float x = max(0.0, 2.0 * (abs(l) - a) / (PI * M));
+    return 2.0 * atan(x) * sign(l) / PI;
+}
+```
+
+To decide which side of the universe to sample from, we check for the "l" parameter. "l" parameter represents the proper distance
+(physical) distance traveled in the radial direction of the sign of the "l". Below code depicts how we approached to the algorithm for this step:
+
+```cpp
+    // set pixel color
+    if (l < 0.0) {
+        FragColor = texture(texture1, DirToUV(cubeVec));
+    } else {
+        FragColor = texture(texture2, DirToUV(cubeVec));
+    }
+```
 
 ## User Interaction and Camera Movements
 
+### Controls
+- `A`, `D`: Move the camera backward, and forward, respectively. Change camL, the distance of the camera from the center of the wormhole.
+- `W`, `S`: Increase and decrease wormhole length, respectively.
+- `Q`, `E`:  Decrease and increase wormhole smoothness, respectively.
+- `Z`, `X`:  Decrease and increase iteration of differentiation, respectively.
+- `ESC`: Close the window
+- `Mouse right click`: Look around 
+
+### Wormhole Settings UI
+
+<img src="images/settings_ui.png">
+
+## Interactions Explanation
+Users can interact with the environment in two ways. They can either use keyboard to apply operations above or they can use wormhole setting interface for a better visual experience.
+
+- In our implementation, at the beginning of the program, camera travels between two universes. User can stop the automatic move of the camera using the stop toggle.
+- Camera can be dragged forward and backwards using A and D buttons.
+- We implemented wormhole settings UI using imgui library.
 
