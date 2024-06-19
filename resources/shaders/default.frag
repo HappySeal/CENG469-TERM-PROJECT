@@ -101,9 +101,11 @@ void main()
     vec3 cubeVec = vec3(-vec.x, vec.z, -vec.y);
 
     // set pixel color
+    float iteration_fog = 1.0 - smoothstep(0.0, 1.0, float(steps) / float(1000));
+
     if (l < 0.0) {
-        FragColor = texture(texture1, DirToUV(cubeVec));
+        FragColor = texture(texture1, DirToUV(cubeVec)) * iteration_fog;
     } else {
-        FragColor = texture(texture2, DirToUV(cubeVec));
+        FragColor = texture(texture2, DirToUV(cubeVec)) * iteration_fog;
     }
 }

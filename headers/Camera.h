@@ -51,7 +51,7 @@ public:
    int height;
 
    float speed = 0.1f;
-   float sensitivity = 5.0f;
+   float sensitivity = 100.0f;
 
     KEY_BINDING keyBinding = WASD_KEYS;
 
