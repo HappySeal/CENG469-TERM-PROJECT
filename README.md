@@ -9,6 +9,11 @@ The project is developed using CMake. To run the project, you need to have CMake
 make all
 ./app
 ```
+To run the project with Makefile, you need to use the following commands:
+```bash
+make
+./main
+```
 
 ## Controls
 - `A`, `D`: Move the camera backward, and forward, respectively. Change camL, the distance of the camera from the center of the wormhole.
