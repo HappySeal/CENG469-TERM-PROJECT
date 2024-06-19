@@ -43,6 +43,7 @@ public:
     glm::mat4 viewMatrix;
     glm::mat4 projectionMatrix;
     glm::mat4 cameraMatrix;
+    glm::vec3 viewParams;
 
     bool firstClick = true;
 
@@ -50,7 +51,7 @@ public:
    int height;
 
    float speed = 0.1f;
-   float sensitivity = 100.0f;
+   float sensitivity = 5.0f;
 
     KEY_BINDING keyBinding = WASD_KEYS;
 

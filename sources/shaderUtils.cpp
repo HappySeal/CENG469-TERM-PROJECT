@@ -99,6 +99,10 @@ void Shader::SetVec2f(const std::string &name, const glm::vec2 *vec) const {
     glUniform2f(glGetUniformLocation(ID, name.c_str()), vec->x, vec->y);
 }
 
+void Shader::SetBool(const std::string &name, const bool value) const {
+    glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
+}
+
 void Shader::SetInt(const std::string &name, const int value) const {
     glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
 }

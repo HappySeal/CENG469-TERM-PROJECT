@@ -8,16 +8,24 @@ uniform sampler2D texture2;
 uniform float iTime;
 uniform vec2 iResolution;
 
+uniform float uCamL;
+uniform float uWormholeLenght;
+uniform float uWormholeSmoothness;
+uniform int uIntegrationStep;
+uniform bool uStopMotion;
+uniform vec3 uViewParams;
+uniform mat4 uCamLocalToWorldMatrix;
+
 #define PI 3.1415926538
 
 // wormhole settings
-float a = 2.0;       // wormhole throat length
-float M = 0.1;       // wormhole smoothness
+float a = uWormholeLenght;       // wormhole throat length
+float M = uWormholeSmoothness;       // wormhole smoothness
 float dt = 0.1;      // integration step
-int maxSteps = 1000; // maximum steps
+int maxSteps = uIntegrationStep; // maximum steps
 
 // camera settings
-float camL = 5.0;    // camera distance
+float camL = uCamL;    // camera distance
 float zoom = 1.5;    // camera zoom
 
 // wormhole function r(l)
@@ -51,12 +59,21 @@ vec2 DirToUV(vec3 dir)
 
 void main()
 {
-    camL = cos(iTime * 0.2) * 10.0;
+    if (uStopMotion) { 
+        camL = uCamL;
+    }
+    else {
+        camL = cos(iTime * 0.2) * uCamL;
+    }
     float deltaSpace = cos(iTime * 0.5 + PI) * PI / 2.0 + PI / 2.0;
 
     // ray projection
     vec2 uv = TexCoords - 0.5;
-    vec3 vel = normalize(vec3(-zoom, uv));
+    vec3 viewPointLocal = vec3(uv, 1.0) * uViewParams;
+    vec3 viewPointWorld = (uCamLocalToWorldMatrix * vec4(viewPointLocal, 1.0)).xyz;
+
+    // vec3 vel = normalize(vec3(-zoom, uv));
+    vec3 vel = normalize(viewPointWorld);
     vec2 beta = normalize(vel.yz);
 
     // ray tracing

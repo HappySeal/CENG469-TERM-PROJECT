@@ -30,6 +30,7 @@ public:
     void SetFloat(const std::string &name, const float value) const;
     void SetCubeMap(const std::string &name, const GLuint texture) const;
     void SetInt(const std::string &name, const int value) const;
+    void SetBool(const std::string &name, const bool value) const;
 };
 
 

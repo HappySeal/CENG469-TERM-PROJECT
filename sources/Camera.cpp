@@ -11,19 +11,47 @@ Camera::Camera(int _width, int _height, glm::vec3 pos, float _FOVdeg, float _nea
     cameraMatrix = glm::mat4(1.0f);
     width = _width;
     height = _height;
+
+    float planeHeight = _nearPlane * tan(glm::radians(_FOVdeg) / 2.0f) * 2.0f;
+    float planeWidth = planeHeight * (float)width / (float)height;
+    viewParams = glm::vec3(planeHeight, planeWidth, _nearPlane);
+
     projectionMatrix = glm::perspective(glm::radians(_FOVdeg), (float)width / (float)height, _nearPlane, _farPlane);
 }
 
 void Camera::updateMatrix(){
-    viewMatrix = glm::lookAt(Position, Position + Orientation, Up);
+    //viewMatrix = glm::lookAt(Position, Position + Orientation, Up);
+    //cameraMatrix = projectionMatrix * viewMatrix;
 
-    cameraMatrix = projectionMatrix * viewMatrix;
+    glm::vec3 direction = Orientation;
+    direction = glm::normalize(direction);
+
+    // Define the default up vector
+    glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+
+    // Calculate the right vector
+    glm::vec3 right = glm::normalize(glm::cross(up, direction));
+
+    // Recompute the up vector to ensure orthogonality
+    up = glm::cross(direction, right);
+
+    // Create and populate the rotation matrix
+    glm::mat4 rotationMatrix(1.0f); // Initialize to identity matrix
+    rotationMatrix[0] = glm::vec4(right, 0.0f);    // Set the right vector
+    rotationMatrix[1] = glm::vec4(up, 0.0f);       // Set the up vector
+    rotationMatrix[2] = glm::vec4(direction, 0.0f);// Set the direction vector
+
+    viewMatrix = rotationMatrix;
+    //cameraMatrix = projectionMatrix * viewMatrix;
+
 }
 
 void Camera::Matrix(Shader &shader, const char *uniform) {
     shader.Activate();
     glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(cameraMatrix));
 }
+
+
 
 void Camera::HandleControl(GLFWwindow *window) {
     if(glfwGetKey(window, FORWARD_KEY[this->keyBinding]) == GLFW_PRESS){
@@ -90,4 +118,6 @@ void Camera::HandleControl(GLFWwindow *window) {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
         glfwSetWindowShouldClose(window, true);
     }
+
+    updateMatrix();
 }

@@ -10,7 +10,7 @@ TARGET := app
 all: clean $(TARGET)
 
 $(TARGET) : $(MAIN)
-	$(CC) $(CFLAGS) ./sources/*.cpp $(LDFLAGS) $(LIBS:%=dependencies/library/lib%.dylib) $< -o $@ $(FRAMEWORKS) -Wno-deprecated
+	$(CC) $(CFLAGS) ./sources/*.cpp imgui/*.cpp $(LDFLAGS) $(LIBS:%=dependencies/library/lib%.dylib) $< -o $@ $(FRAMEWORKS) -Wno-deprecated
 
 run: all
 	./$(TARGET)
@@ -18,7 +18,7 @@ run: all
 endif
 ifeq ($(UNAME_S), Linux)
 all:
-	g++ main.cpp -o main -g -lglfw -lpthread -lX11 -ldl -lXrandr -lGLEW -lGL -DGL_SILENCE_DEPRECATION -DGLM_ENABLE_EXPERIMENTAL -I.
+	g++ main.cpp sources/*.cpp imgui/*.cpp -o main -g -lglfw -lpthread -lX11 -ldl -lXrandr -lGLEW -lGL -DGL_SILENCE_DEPRECATION -DGLM_ENABLE_EXPERIMENTAL -I.
 endif
 
 clean:
