@@ -180,20 +180,42 @@ In our implementation, we used the second variant of the wormhole. We used the f
 
 $$
 \begin{align}
-\frac{dl}{dt} &= p_t,\\
-\frac{d\theta}{dt} &= \frac{p_{\theta}}{r^2},\\
-\frac{d\phi}{dt} &= \frac{b}{r^2sin^2\theta},\\
-\frac{dp_l}{dt} &= B^2\frac{dr/dl}{r^3},\\
-\frac{dp_{\theta}}{dt} &= \frac{b^2}{r^2}\frac{cos\theta}{sin^3\theta}
+\frac{dl}{dt} &= p_l, &(1)\\
+\frac{d\theta}{dt} &= \frac{p_{\theta}}{r^2},&(2)\\
+\frac{d\phi}{dt} &= \frac{b}{r^2sin^2\theta},&(3)\\
+\frac{dp_l}{dt} &= B^2\frac{dr/dl}{r^3},&(4)\\
+\frac{dp_{\theta}}{dt} &= \frac{b^2}{r^2}\frac{cos\theta}{sin^3\theta}&(5)
 \end{align}
 $$
 
-These are the five equations for the five quantities {$l,\theta,\phi,p_l,p_{theta}$} as the function of the $t$ along the geodesic (ray).
+These are the five equations for the five quantities {$l$,$\theta$,$\phi$,$p_l$,$p_{theta}$} as the function of the $t$ along the geodesic (ray). There are also two more functions for the $b$ and $B$, which are the momentum constants of the ray. These can be calculated as:
+
+$$
+\begin{align}
+b &= p_{\theta} = r\text{ sin }\theta n_{\hat{\phi}}\\
+B &= r^2(n_{\hat{\theta}}^2 + n_{\hat{\phi}}^2)
+\end{align}
+$$
+
+
+These functions are might seem a bit complex. To be honest, they are complex. Lets just go over parameters and functions one by one to understand what each of them are responsible for.
+
+- $p_l$,$p_\theta$,$p_{\phi}$: These parameters are the canonical momenta of the incoming ray. Which can be explained as the momentum of the light ray in the polar coordinates. 
+- $n_\hat{\theta}$,$n_\hat{\phi}$: These are parameters for where is the light is coming from. In our implementation in order to keep calculations simple, we assumed that the wormhole is located in +X direction and rays coming from there.
+
+- Equation 1: This is the derivative of the parameter $l$. This function is going to be used to determine how the $l$ is changing according to the momenta of the lightray.
+- Equation 2: This is the derivative of the spatial parameter $\theta$. This one is not going to be used since we are assuming the wormhole is located at the +X direction, $\theta$ will be equal to 0 and $sin0 = 0$.
+- Equation 3: This is the derivative of the second spatial parameter $\phi$. This equation will be used to determine the direction of the ray and determining where it is land according to the skybox.
+- Equation 4: This is the derivative of the momentum of the light in $l$ direction. Since this equation and 1st equation is tight closely together, we will combine these to into one.
+- Equation 5: This equation is the derivative of the momentum of the light in spatial parameter $\theta$. This equation is also not used in our implementation, since $tan^30 = 0$.
+
+So, since we get this heavy physics and math out of the way lets start implementing our wormhole.
 
 ## Wormhole Shader Implementation
 
+First we start by defining the $r(l)$ and its derivative as functions. 
 
-```cpp
+```glsl
 // wormhole function r(l)
 float LtoR(float l) {
     float x = max(0.0, 2.0 * (abs(l) - a) / PI / M);
@@ -201,25 +223,85 @@ float LtoR(float l) {
 }
 ```
 
-```cpp
-// wormhole derivative
+```glsl
+// wormhole derivative of r(l)
 float LtoDR(float l) {
     float x = max(0.0, 2.0 * (abs(l) - a) / (PI * M));
     return 2.0 * atan(x) * sign(l) / PI;
 }
 ```
 
-To decide which side of the universe to sample from, we check for the "l" parameter. "l" parameter represents the proper distance
-(physical) distance traveled in the radial direction of the sign of the "l". Below code depicts how we approached to the algorithm for this step:
+After these two main functions, we implemented a simple function to convert direction vector to UV coordinates. This function is used to sample the skybox.
 
-```cpp
-    // set pixel color
-    if (l < 0.0) {
-        FragColor = texture(texture1, DirToUV(cubeVec));
-    } else {
-        FragColor = texture(texture2, DirToUV(cubeVec));
-    }
+```glsl
+vec2 DirToUV(vec3 dir)
+{
+    vec3 dirNormalized = normalize(dir);
+    vec2 uv = vec2((atan(-dirNormalized.z,dirNormalized.x) + 1)/(2*PI), acos(-dirNormalized.y)/PI);
+    return uv;
+}
 ```
+
+After these functions, we implemented the main fragment shader. In this fragment shader, we calculate the initial conditions of the differential equations and solve them iteratively.
+
+```glsl
+  // ray tracing
+  float l = camL;
+  float r = LtoR(camL);
+  float dl = vel.x;
+  float B = r * length(vel.yz);
+  float phi = 0.0;
+  float dr;
+```
+
+After the initial conditions are set, we start solving the differential equations iteratively. We use the Runge-Kutta method to solve the differential equations. The Runge-Kutta method is a numerical method to solve ordinary differential equations. It is a fourth-order method that is used to solve the differential equations in our implementation.
+
+```glsl
+int steps = 0;
+while (abs(l) < max(abs(camL) * 2.0, a + 2.0) && steps < maxSteps) {
+    ...
+}
+```
+
+In the while loop we check whether the max iteration count is reached or the value of l has surpassed position of the camera or exited the wormhole.
+
+```glsl
+...
+{
+    dr = LtoDR(l);
+    r = LtoR(l);
+    l += dl * dt;
+    phi += B / (r * r) * dt;
+    dl += B * B * dr / (r * r * r) * dt;
+    steps++;
+}
+```
+
+In each iteration we calculate the new values of each parameter using the Runge-Kutta method. After the loop is finished, we calculate the direction vector the ray that exited the wormhole
+
+```glsl
+    float dx = dl * dr * cos(phi) - B / r * sin(phi);
+    float dy = dl * dr * sin(phi) + B / r * cos(phi);
+    vec3 vec = normalize(vec3(dx, dy * beta));
+    vec3 cubeVec = vec3(-vec.x, vec.z, -vec.y);
+```
+
+Using the direction vector, we calculate the UV coordinates of the skybox and sample the corresponding skybox. Plus in order to simulate the scattering of the light in the wormhole, we added a fog effect to the wormhole. This fog effect also helps to create a more realistic wormhole effect and helps to hide some artifacts due to long iterations.
+
+
+```glsl
+
+// set pixel color
+float iteration_fog = 1.0 - smoothstep(0.0, 1.0, float(steps) / float(1000));
+
+if (l < 0.0) {
+    FragColor = texture(texture1, DirToUV(cubeVec)) * iteration_fog;
+} else {
+    FragColor = texture(texture2, DirToUV(cubeVec)) * iteration_fog;
+}
+```
+
+
 
 ## User Interaction and Camera Movements
 
@@ -243,5 +325,8 @@ Users can interact with the environment in two ways. They can either use keyboar
 - In each right cursor pressed mouse movement, new orientation of the camera is calculated and camera viewing matrix is updated, correspondingly.
 - We implemented wormhole settings UI using imgui library.
 
-- 
+## Results
 
+Here is the final result of our project. We have implemented a wormhole effect using the mathematical model of the wormhole. The wormhole effect is applied to the skybox to create a realistic wormhole effect. The wormhole effect is calculated using the Runge-Kutta method in the fragment shader. The wormhole effect is applied to the skybox to create a realistic wormhole effect. The wormhole effect is calculated using the Runge-Kutta method in the fragment shader.
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/6Q_l6Y3uzcY?si=fSCDrFaZybTDWdzW" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>

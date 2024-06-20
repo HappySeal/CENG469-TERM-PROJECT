@@ -74,7 +74,7 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Create window
-    GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL Wormhole", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(600, 600, "OpenGL Wormhole", nullptr, nullptr);
     if (!window) {
         std::cerr << "Failed to create GLFW window\n";
         glfwTerminate();
@@ -92,7 +92,7 @@ int main() {
 
 
     glfwSetWindowSizeCallback(window, reshape);
-	reshape(window, 800, 600); // need to call this once ourselves
+	reshape(window, 600, 600); // need to call this once ourselves
 
     std::cout << "Created GLFW window\n" << std::endl;
 
@@ -246,9 +246,8 @@ int main() {
 
         // Set uniforms
         wormhole.SetFloat("iTime", (float)glfwGetTime());
-        wormhole.SetVec2f("iResolution", new glm::vec2(800.0f, 600.0f));
         wormhole.SetFloat("uCamL", gCamL);
-        wormhole.SetFloat("uWormholeLenght", gWormholeLenght);
+        wormhole.SetFloat("uWormholeLength", gWormholeLenght);
         wormhole.SetFloat("uWormholeSmoothness", gWormholeSmoothness);
         wormhole.SetInt("uIntegrationStep", gIntegrationStep);
         wormhole.SetBool("uStopMotion", gStopMotion);
@@ -373,38 +372,4 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 
 }
-
-void mouse_callback(GLFWwindow* window, int button, int action, int mods)
-{
-    
-    if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS){
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-
-        if(firstClick){
-            glfwSetCursorPos(window, gWidth/2, gHeight/2);
-            firstClick = false;
-        }
-
-        double mouseX, mouseY;
-        glfwGetCursorPos(window, &mouseX, &mouseY);
-
-        float rotX = sensitivity * (float)(mouseY - gHeight/2) / gHeight;
-        float rotY = sensitivity * (float)(mouseX - gWidth/2) / gWidth;
-
-        glm::vec3 newOrientation = glm::rotate(Orientation, glm::radians(-rotX), glm::normalize(glm::cross(Orientation, Up)));
-
-        if(!(glm::angle(newOrientation, Up) <= glm::radians(5.0f) || glm::angle(newOrientation, -Up) <= glm::radians(5.0f))){
-            Orientation = newOrientation;
-        }
-
-        Orientation = glm::rotate(Orientation, glm::radians(-rotY), Up);
-
-        glfwSetCursorPos(window, gWidth/2, gHeight/2);
-
-    }else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE){
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-        firstClick = true;
-    }
-}
-
 

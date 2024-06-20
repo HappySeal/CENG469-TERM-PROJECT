@@ -9,7 +9,7 @@ uniform float iTime;
 uniform vec2 iResolution;
 
 uniform float uCamL;
-uniform float uWormholeLenght;
+uniform float uWormholeLength;
 uniform float uWormholeSmoothness;
 uniform int uIntegrationStep;
 uniform bool uStopMotion;
@@ -19,7 +19,7 @@ uniform mat4 uCamLocalToWorldMatrix;
 #define PI 3.1415926538
 
 // wormhole settings
-float a = uWormholeLenght;       // wormhole throat length
+float a = uWormholeLength;       // wormhole throat length
 float M = uWormholeSmoothness;       // wormhole smoothness
 float dt = 0.1;      // integration step
 int maxSteps = uIntegrationStep; // maximum steps
@@ -65,8 +65,6 @@ void main()
     else {
         camL = cos(iTime * 0.2) * uCamL;
     }
-    float deltaSpace = cos(iTime * 0.5 + PI) * PI / 2.0 + PI / 2.0;
-
     // ray projection
     vec2 uv = TexCoords - 0.5;
     vec3 viewPointLocal = vec3(uv, 1.0) * uViewParams;
@@ -80,7 +78,7 @@ void main()
     float l = camL;
     float r = LtoR(camL);
     float dl = vel.x;
-    float H = r * length(vel.yz);
+    float B = r * length(vel.yz);
     float phi = 0.0;
     float dr;
 
@@ -89,14 +87,14 @@ void main()
         dr = LtoDR(l);
         r = LtoR(l);
         l += dl * dt;
-        phi += H / (r * r) * dt;
-        dl += H * H * dr / (r * r * r) * dt;
+        phi += B / (r * r) * dt;
+        dl += B * B * dr / (r * r * r) * dt;
         steps++;
     }
 
     // sky direction
-    float dx = dl * dr * cos(phi) - H / r * sin(phi);
-    float dy = dl * dr * sin(phi) + H / r * cos(phi);
+    float dx = dl * dr * cos(phi) - B / r * sin(phi);
+    float dy = dl * dr * sin(phi) + B / r * cos(phi);
     vec3 vec = normalize(vec3(dx, dy * beta));
     vec3 cubeVec = vec3(-vec.x, vec.z, -vec.y);
 
