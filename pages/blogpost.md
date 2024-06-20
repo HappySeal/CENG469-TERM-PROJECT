@@ -188,7 +188,7 @@ $$
 \end{align}
 $$
 
-These are the five equations for the five quantities {$l$,$\theta$,$\phi$,$p_l$,$p_{theta}$} as the function of the $t$ along the geodesic (ray). There are also two more functions for the $b$ and $B$, which are the momentum constants of the ray. These can be calculated as:
+These are the five equations for the five quantities { $l$ , $\theta$ , $\phi$ , $p_l$ , $p_{theta}$ } as the function of the $t$ along the geodesic (ray). There are also two more functions for the $b$ and $B$, which are the momentum constants of the ray. These can be calculated as:
 
 $$
 \begin{align}
@@ -200,8 +200,8 @@ $$
 
 These functions are might seem a bit complex. To be honest, they are complex. Lets just go over parameters and functions one by one to understand what each of them are responsible for.
 
-- $p_l$,$p_\theta$,$p_{\phi}$: These parameters are the canonical momenta of the incoming ray. Which can be explained as the momentum of the light ray in the polar coordinates. 
-- $n_\hat{\theta}$,$n_\hat{\phi}$: These are parameters for where is the light is coming from. In our implementation in order to keep calculations simple, we assumed that the wormhole is located in +X direction and rays coming from there.
+- $p_l$ , $p_\theta$ , $p_{\phi}$ : These parameters are the canonical momenta of the incoming ray. Which can be explained as the momentum of the light ray in the polar coordinates. 
+- $n_\hat{\theta}$ , $n_\hat{\phi}$ : These are parameters for where is the light is coming from. In our implementation in order to keep calculations simple, we assumed that the wormhole is located in +X direction and rays coming from there.
 
 - Equation 1: This is the derivative of the parameter $l$. This function is going to be used to determine how the $l$ is changing according to the momenta of the lightray.
 - Equation 2: This is the derivative of the spatial parameter $\theta$. This one is not going to be used since we are assuming the wormhole is located at the +X direction, $\theta$ will be equal to 0 and $sin0 = 0$.
