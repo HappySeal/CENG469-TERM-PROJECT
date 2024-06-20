@@ -379,7 +379,16 @@ After this problem is solved, we were able to implement the wormhole effect in O
     </tr>
 </table>
 
-<img src="images/progress1.gif"/> Implementation of the cubemap </td>
-<img src="images/progress2.gif"/> Demo using Interstellar assets
+<div style="align-items: center">
+<img src="images/progress1.gif"/> 
+</div>
+
+Implementation of the cubemap 
+
+<div style="align-items: center">
+<img src="images/progress2.gif"/> 
+</div>
+
+Demo using Interstellar assets
 
 
