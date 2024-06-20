@@ -329,4 +329,17 @@ Users can interact with the environment in two ways. They can either use keyboar
 
 Here is the final result of our project. We have implemented a wormhole effect using the mathematical model of the wormhole. The wormhole effect is applied to the skybox to create a realistic wormhole effect. The wormhole effect is calculated using the Runge-Kutta method in the fragment shader. The wormhole effect is applied to the skybox to create a realistic wormhole effect. The wormhole effect is calculated using the Runge-Kutta method in the fragment shader.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/6Q_l6Y3uzcY?si=fSCDrFaZybTDWdzW" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+<table>
+    <tr>
+        <td> <div align="left">
+              <a href="https://www.youtube.com/watch?v=6Q_l6Y3uzcY">
+                 <img src="https://img.youtube.com/vi/6Q_l6Y3uzcY/0.jpg" style="width:100%;">
+              </a>
+        </div> <div style="text-align: center">Demo video OpenGL</div> </td>
+        <td>  <div align="left">
+              <a href="https://www.youtube.com/watch?v=sjjDArBl00A">
+                 <img src="https://img.youtube.com/vi/sjjDArBl00A/0.jpg" style="width:100%;">
+              </a>
+        </div> <div style="text-align: center"> Demo video Unity</div> </td>
+    </tr>
+</table>
