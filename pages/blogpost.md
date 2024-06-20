@@ -98,11 +98,67 @@ r(l) = \sqrt{\rho^2 + l^2}
 $$
 
 $t$: physical time of a observer standing at a point
+
 $\{l,\theta,\phi\}$: Position of the observer in 3D
+
 $\rho$: throat radius
+
 $s$: Schwarzchild coordinates $\{t,l,\theta,\phi\}$
 
+This formulation of a wormhole is not suitable for our project since it does not consider any parameters about the wormhole such as its length, smoothness, etc. Therefore, we need to create a new mathematical model for the wormhole.
+
+The paper suggests a mathematical model named _Double Negative Three-Parameter Wormhole_. This model 3 variants. Each of them considers a different property of the wormhole. These are:
+
+- Variant 1: Length and Radius of the wormhole with sharp transition
+- Variant 2: Lensing length with smooth transition.
+- Variant 3: Gravitational pull of wormhole.
+
+### Variant 1: Length and Radius of the wormhole with sharp transition
+<table>
+    <tr>
+        <td> <img src="images/img.png"> </td>
+        <td> <img src="images/img2.png"> </td>
+    </tr>
+</table>
+
+In the first variant, the wormhole is considered as a cylinder with two spheres at the ends. The cylinder has a length of $2a$ and the spheres have a radius of $\rho$. The wormhole is defined as follows:
+
 <img src="images/wormhole1.png">
+
+However, this yield into a wormhole with a very sharp edges, we need to smooth it out by using some _gravity_. We will use some equations that is used by gravitational lensing calculations ( but they will actually called spatial lensing in case of wormholes, because wormholes are assumed to have no mass).
+
+In order to have a cool and smooth wormhole we can use _Schwarzschild metric_, which is the _exact_ solution to _Einstein field equations_ that describe the gravitational field outside a spherical mass under assumption of zero electrical charge and zero angular momentum.
+
+It can be formulated as
+
+$$
+ds^2 = -(1 - \frac{r_s}{r})dt^2 + (1 - \frac{r_s}{r})^{-1}dr^2 + r^2(d\theta^2 + sin^2\theta d\phi^2)
+$$
+
+$r_s$ is the _Schwarzschild radius_ of the massive body, a scale factor which is related to its mass $M$ by $r_s = 2GM/c^2$ where $G$ is the gravitational constant. For simplicity sake we can assume that $r_s = 2M$.
+
+Using the general wormhole metric [[Ellis Wormhole|(1)]] we can see that see that
+
+$$
+dl = \pm dr/\sqrt{1-2M/r}
+$$
+
+However, we can see that, integrating this function will yield with a function that depends on $r$ and return $l$. But we want the opposite. Instead we can use this analytic function that is _roughly the same_ as the Schwarzschild $r(l)$:
+
+$$
+\begin{align}
+r &= \rho + \frac{2}{\pi}\int^{|l| - a}_{0}arctan(\frac{2\xi}{\pi M})d\xi\\
+&= \rho + M\left[x\text{ arctan }x - \frac{1}{2}ln(1+x^2)\right] \text{ for } |l| > a
+\end{align}
+$$
+
+where
+
+$$
+x = \frac{2(|l| - a)}{\pi M}
+$$
+
+
 
 In the above image, there are the calculations of the approximation of the wormhole. Think of wormhole as a cyclinder whose two ends are two different universes, or spaces of shape sphere with a radius of ρ. Additionally, we have a simple cylinder of length 2a in the middle as the throat of the wormhole. "r" represents the radial distance from the center of the cylinder to end of the sphere. 
 
