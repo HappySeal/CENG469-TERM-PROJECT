@@ -343,3 +343,43 @@ Here is the final result of our project. We have implemented a wormhole effect u
         </div> <div style="text-align: center"> Demo video Unity</div> </td>
     </tr>
 </table>
+
+## Comments on the Project
+
+The project was a great experience for us. We learned a lot about wormholes and how they can be implemented in computer graphics. We also learned a lot about the Runge-Kutta method and how it can be used to solve differential equations in computer graphics.
+
+The biggest struggle for us during the project was to understand what all of the parameters is about and how are we going to utilize and combine them into a simulation of a wormhole. We had to read the paper again and again to understand the physics behind the wormhole and how it can be implemented in computer graphics. 
+
+But the most frustrating part of the project was to showing a normal texture on a quad. We were having so trouble while implementing this simple part. We went crazy on this problem and we were thinking that we are doing something wrong in fundamentals of OpenGL. This was the moment our member Cafer Selli had a breakdown and started to implement the project in Unity. After implementing the project in Unity, we realized that we were doing everything right in OpenGL and the problem was just a simple mistake in the texture loading part.
+
+While loading the textures if the texture is not sized properly (edges are not power of 2) OpenGL will not load the texture properly. After adding the following part of the code everything was working perfectly:
+
+```cpp
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+    glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+    glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+```
+
+After this problem is solved, we were able to implement the wormhole effect in OpenGL as well.
+
+### Progress Media
+
+<table>
+    <tr>
+        <td> <img src="images/progress4.png"> Still struggle of loading textures </td>
+        <td> <img src="images/progress5.png"> Our first successful attempt of loading texture</td>
+        <td> <img src="images/progress2.png"> Trying to figure out the equations </td>
+</tr>
+</table>
+<table>
+    <tr>
+        <td> <img src="images/progress3.png"> Accidentally creating a blackhole instead of a wormhole </td>
+        <td> <img src="images/progress1.png"> Opps everything broke once again</td>
+    </tr>
+</table>
+
+<img src="images/progress1.gif"/> Implementation of the cubemap </td>
+<img src="images/progress2.gif"/> Demo using Interstellar assets
+
+
