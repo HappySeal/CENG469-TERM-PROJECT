@@ -13,7 +13,7 @@ There are several aspects of the project:
 ## Equilateral Image to Cubemap
 In this section, we focused on converting an equilateral image into a cubemap to create a seamless environment that gives the illusion of an endless space. The cubemap allows us to map a 360-degree image onto a cube, which can then be used to create reflections and background scenery in our wormhole effect. By using an equilateral image, we ensure that the transitions between the faces of the cube are smooth and continuous, enhancing the immersive experience.
 
-Here rather than caculating each 6 faces of the cube one by one, we do the calculations on the shader. In our implementation, camera never moves. The rays from the camera follows a path calculated by the wormhole function. Ray tracing is utilized to obtain the pixel value from the other universe. Moreover, in each draw call, a recalculation with ray tracing is necessary since the camera moves between the two universes. Hence, we obtain the corresponding cubemap value using ray tracing and wormhole function in the shaders.
+We used one simple quad and two equilateral texture images. Here rather than caculating each of the six faces of the cube one by one, we do the calculations on the shader. In our implementation, camera never moves. The rays from the camera follows a path calculated by the wormhole function. Ray tracing is utilized to obtain the pixel value from the other universe. Moreover, in each draw call, a recalculation with ray tracing is necessary since the camera moves between the two universes. Hence, we obtain the corresponding cubemap value using ray tracing and wormhole function in the shaders.
 
 <img src="images/ray1.png">
 
@@ -75,10 +75,13 @@ To decide which side of the universe to sample from, we check for the "l" parame
 
 <img src="images/settings_ui.png">
 
-## Interactions Explanation
+## Controls Explanation
 Users can interact with the environment in two ways. They can either use keyboard to apply operations above or they can use wormhole setting interface for a better visual experience.
 
 - In our implementation, at the beginning of the program, camera travels between two universes. User can stop the automatic move of the camera using the stop toggle.
 - Camera can be dragged forward and backwards using A and D buttons.
+- In each right cursor pressed mouse movement, new orientation of the camera is calculated and camera viewing matrix is updated, correspondingly.
 - We implemented wormhole settings UI using imgui library.
+
+- 
 
