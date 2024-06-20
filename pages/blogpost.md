@@ -9,15 +9,98 @@ There are several aspects of the project:
 - Shader implementation of the wormhole
 - Allow user interaction through mouse and keyboard input as well as through wormhole settings UI
 
-## Equilateral Image to Cubemap
-In this section, we focused on converting an equilateral image into a cubemap to create a seamless environment that gives the illusion of an endless space. The cubemap allows us to map a 360-degree image onto a cube, which can then be used to create reflections and background scenery in our wormhole effect. By using an equilateral image, we ensure that the transitions between the faces of the cube are smooth and continuous, enhancing the immersive experience.
+## Equilateral Image
+In order to create an infinite space like feeling, a skybox needs to be implemented. This skybox can be created using cubemaps defined in OpenGL. However, using such cubemaps is excessive since this skybox will be dynamically changed according to the ray direction. Therefore, we decided to use an equilateral image to create a never-ending space. Here is the two equilateral images we used in our project:
 
-We used one simple quad and two equilateral texture images. Here rather than caculating each of the six faces of the cube one by one, we do the calculations on the shader. In our implementation, camera never moves. The rays from the camera follows a path calculated by the wormhole function. Ray tracing is utilized to obtain the pixel value from the other universe. Moreover, in each draw call, a recalculation with ray tracing is necessary since the camera moves between the two universes. Hence, we obtain the corresponding cubemap value using ray tracing and wormhole function in the shaders.
+<table>
+    <tr>
+        <td> <img src="../resources/textures/sky1.png"> <div style="text-align: center"> Equilateral Image for the skybox of Universe #1 </div></td>
+        <td> <img src="../resources/textures/sky2.png"><div style="text-align: center"> Equilateral Image for the skybox of Universe #2 </div> </td>
+    </tr>
+</table>
 
-![[ray1.png]]
+Also there are some extra skybox that is used in paper, later on the blogpost we will also demonstrate how these two skybox also used.
+
+<table>
+    <tr>
+        <td> <img src="../resources/textures/interstellar_sky_1.jpeg"> <div style="text-align: center"> Equilateral Image for the skybox of Universe #1 from paper </div></td>
+        <td> <img src="../resources/textures/interstellar_sky_2.jpeg"><div style="text-align: center"> Equilateral Image for the skybox of Universe #2 from paper </div> </td>
+    </tr>
+</table>
 
 ## Shader Implementation of the Wormhole
 The core of our project lies in the shader implementation. The fragment shader is responsible for rendering the wormhole effect by manipulating texture coordinates and applying complex mathematical transformations.
+
+In order to have a such wormhole effect, trajectory of each beam of light needs to be calculated. This is not so possible using a simple camera and scene setup. Therefore, we need to calculate the ray direction in the fragment shader. To calculate the ray and its trajectory first we have to setup a ray tracing shader.
+
+### Ray Direction Calculation
+
+The ray direction calculation is based on a Youtube video from "Sebastian Lague" named "Coding Adventure: Ray Tracing". The video can be found [here](https://www.youtube.com/watch?v=Qz0KTGYJtUk). 
+
+In order to create a ray tracer, first we have to show a quad on screen to represent the screen. Then, we have to calculate the ray direction for each pixel on the screen. 
+
+```cpp
+    // Set up vertex data and buffers and configure vertex attributes
+    float vertices[] = {
+    // positions          // texture coords
+    -1.0f,  1.0f, 0.0f,  0.0f, 1.0f,
+    -1.0f, -1.0f, 0.0f,  0.0f, 0.0f,
+    1.0f, -1.0f, 0.0f,  1.0f, 0.0f,
+    1.0f,  1.0f, 0.0f,  1.0f, 1.0f
+    };
+    unsigned int indices[] = {
+    0, 1, 2,
+    2, 3, 0
+    };
+```
+
+First we create the quad by assigning the position of its vertices and indices of each vertex for triangles on quad. After standard procedure of creating VAO, VBO and EBO for the quad and rendering on screen, we can start calculating our rays!
+
+
+```glsl Vertex Shader
+#version 330 core
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec2 texCoords;
+
+out vec2 TexCoords;
+
+void main()
+{
+    gl_Position = vec4(position, 1.0);
+    TexCoords = texCoords;
+}
+```
+
+Here is the vertex shader for the quad. It is a simple vertex shader that takes the position and texture coordinates of the vertices and passes the texture coordinates to the fragment shader.
+
+```glsl Fragment Shader
+    // ray projection
+    vec2 uv = TexCoords - 0.5;
+    vec3 viewPointLocal = vec3(uv, 1.0) * uViewParams;
+    vec3 viewPointWorld = (uCamLocalToWorldMatrix * vec4(viewPointLocal, 1.0)).xyz;
+
+    // vec3 vel = normalize(vec3(-zoom, uv));
+    vec3 vel = normalize(viewPointWorld);
+```
+
+In the fragment shader, we calculate the ray direction by taking the texture coordinates of the pixel and converting them to world coordinates. Then, we normalize the vector to get the ray direction. This ray direction will be used to calculate the wormhole effect.
+
+### Wormhole Math & Physics
+
+In order to create our wormhole, we need to connect two 3D spaces using an extra dimension. There are several ways to create a mathematical model for a wormhole. In the paper first mentioned wormhole equation is the _Ellis Wormhole_ equation. The equation is as follows:
+
+$$ 
+ds^2 = -dt^2 + dl^2 + r^2(d\theta^2 + sin^2\theta d\phi^2)
+$$
+where $r$ is a function of $l$
+$$
+r(l) = \sqrt{\rho^2 + l^2}
+$$
+
+$t$: physical time of a observer standing at a point
+$\{l,\theta,\phi\}$: Position of the observer in 3D
+$\rho$: throat radius
+$s$: Schwarzchild coordinates $\{t,l,\theta,\phi\}$
 
 <img src="images/wormhole1.png">
 
@@ -25,7 +108,7 @@ In the above image, there are the calculations of the approximation of the wormh
 
 To obtain a smooth transition view of the other side, we need to smooth the intersection of cylinder with the spheres. Such an effect can be achieved by expanding the ends of the cylinder towards the spheres. Through utilizing the function below, such an effect is achieved and applied to the ray direction calculations.
 
-<img src="images/wormhole2.png"> 
+<img src="images/wormhole2.png" align="center"> 
 
 As indicated in the paper, to catch a realistic wormhole effect, there should be gravitational lensing (distortions) close to the intersections. Consequently, the smooth transitions are necessary. The below image depicts the wormhole with and without distortions. The desired look is the second one.
 
