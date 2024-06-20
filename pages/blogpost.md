@@ -385,9 +385,9 @@ After this problem is solved, we were able to implement the wormhole effect in O
 
 Implementation of the cubemap 
 
-<div style="align-items: center">
+<p align="center">
 <img src="images/progress2.gif"/> 
-</div>
+</p>
 
 Demo using Interstellar assets
 
