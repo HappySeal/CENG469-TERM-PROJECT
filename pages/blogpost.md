@@ -379,9 +379,9 @@ After this problem is solved, we were able to implement the wormhole effect in O
     </tr>
 </table>
 
-<div style="align-items: center">
+<p align="center">
 <img src="images/progress1.gif"/> 
-</div>
+</p>
 
 Implementation of the cubemap 
 
