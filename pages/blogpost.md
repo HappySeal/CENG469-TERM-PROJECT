@@ -127,6 +127,8 @@ In the first variant, the wormhole is considered as a cylinder with two spheres 
 
 However, this yield into a wormhole with a very sharp edges, we need to smooth it out by using some _gravity_. We will use some equations that is used by gravitational lensing calculations ( but they will actually called spatial lensing in case of wormholes, because wormholes are assumed to have no mass).
 
+### Variant 2: Lensing length with smooth transition
+
 In order to have a cool and smooth wormhole we can use _Schwarzschild metric_, which is the _exact_ solution to _Einstein field equations_ that describe the gravitational field outside a spherical mass under assumption of zero electrical charge and zero angular momentum.
 
 It can be formulated as
@@ -137,7 +139,7 @@ $$
 
 $r_s$ is the _Schwarzschild radius_ of the massive body, a scale factor which is related to its mass $M$ by $r_s = 2GM/c^2$ where $G$ is the gravitational constant. For simplicity sake we can assume that $r_s = 2M$.
 
-Using the general wormhole metric [[Ellis Wormhole|(1)]] we can see that see that
+Using the general wormhole metric we can see that see that
 
 $$
 dl = \pm dr/\sqrt{1-2M/r}
@@ -158,17 +160,38 @@ $$
 x = \frac{2(|l| - a)}{\pi M}
 $$
 
-
-
-In the above image, there are the calculations of the approximation of the wormhole. Think of wormhole as a cyclinder whose two ends are two different universes, or spaces of shape sphere with a radius of ρ. Additionally, we have a simple cylinder of length 2a in the middle as the throat of the wormhole. "r" represents the radial distance from the center of the cylinder to end of the sphere. 
-
-To obtain a smooth transition view of the other side, we need to smooth the intersection of cylinder with the spheres. Such an effect can be achieved by expanding the ends of the cylinder towards the spheres. Through utilizing the function below, such an effect is achieved and applied to the ray direction calculations.
-
 <img src="images/wormhole2.png" align="center"> 
+
+
+This is our wormhole function $r(l)$. We will use this and some other functions to iteratively calculate the ray direction in the fragment shader.
 
 As indicated in the paper, to catch a realistic wormhole effect, there should be gravitational lensing (distortions) close to the intersections. Consequently, the smooth transitions are necessary. The below image depicts the wormhole with and without distortions. The desired look is the second one.
 
 <img src="images/wormhole3.png"> 
+
+### Variant 3: Gravitational pull of wormhole
+
+In the third variant, the wormhole is considered as an object with spatial lensing but no mass. In order to achieve the effect of distortion we dont need to calculate real gravitational effect of it, since coverage of this paper does not include general relativity. Instead, we can use some simple functions to create a similar effect.
+
+### Final Variant
+
+In our implementation, we used the second variant of the wormhole. We used the following functions to calculate the wormhole effect:
+
+
+$$
+\begin{align}
+\frac{dl}{dt} &= p_t,\\
+\frac{d\theta}{dt} &= \frac{p_{\theta}}{r^2},\\
+\frac{d\phi}{dt} &= \frac{b}{r^2sin^2\theta},\\
+\frac{dp_l}{dt} &= B^2\frac{dr/dl}{r^3},\\
+\frac{dp_{\theta}}{dt} &= \frac{b^2}{r^2}\frac{cos\theta}{sin^3\theta}
+\end{align}
+$$
+
+These are the five equations for the five quantities {$l,\theta,\phi,p_l,p_{theta}$} as the function of the $t$ along the geodesic (ray).
+
+## Wormhole Shader Implementation
+
 
 ```cpp
 // wormhole function r(l)
